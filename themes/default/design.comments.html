@@ -1,0 +1,91 @@
+<!-- SIGNATURE -->
+<p style="font-size: 80%; color: #666;">%text</p>
+<!-- !SIGNATURE -->
+
+<!-- INSERT_OK -->
+<div style="border: 5px solid #5A8336; background: #8BBD5E;font-size: 1.3em; font-weight: bold; text-align: center; color: white; padding: 5px;">
+%s
+</div>
+<!-- !INSERT_OK -->
+
+<!-- INSERT_KO -->
+<div style="border: 5px solid #914D43; background: #BD825E; font-size: 1.3em; font-weight: bold; text-align: center; color: white; padding: 5px;">
+%s
+</div>
+<!-- !INSERT_KO -->
+
+<!-- COMMENT -->
+<div class='comment'>
+	<div class='left'>
+		<img class='avatar' src="%photo" alt="%name">
+		<a href="%urlreply" class='reply'>{LANG:COMMENTS;reply;Odpovedet}</a>
+	</div>
+
+	<div class='header'>
+		<span class='title'>%name: %subject</span>
+		<span class='logged'>({LANG:COMMENTS;%logged;%logged})</span>
+	</div>
+
+	<div class='text'>
+
+		%text
+	</div>
+</div>
+
+<div style="padding-left: 20px; margin-bottom: 15px;">
+	%next
+</div>
+
+%lext
+<!-- !COMMENT -->
+
+<!-- NEW_COMMENT -->
+<form method="post" action="#newcomment" style="margin-bottom: 40px;" id="newcomment">
+%error
+	<table>
+		<thead>
+			<tr>
+				<th colspan=2>Novy komentar %reakce</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr %logged>
+				<td><label>ID:</label></td>
+				<td><input type="text" name="id" value="%id" %disabled /></td>
+			</tr>
+
+			<tr>
+				<td><label>Jméno:</label></td>
+				<td><input type="text" name="name" value="%name" %disabled /></td>
+			</tr>
+
+			<tr>
+				<td><label>E-mail:</label></td>
+				<td><input type="text" name="mail" value="%mail" %disabled /></td>
+			</tr>
+
+			<tr>
+				<td><label>Web:</label></td>
+				<td><input type="text" name="web" value="%web" %disabled /></td>
+			</tr>
+			<tr><td></td></tr>
+			<tr>
+				<td><label>Titulek:</label></td>
+				<td><input type="text" name="subject" value="%subject"/></td>
+			</tr>
+
+			<tr>
+				<td><label>Vzkaz:</label></td>
+				<td><textarea name="text" rows="10" cols="40" id='areaforum'>%text</textarea></td>
+			</tr>
+
+			<tr>
+				<td colspan=2 style="text-align: center;"><input type="submit" value="Odeslat"/></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<input type="hidden" value="%parent" name="parent">
+	<input type="hidden" value="%group" name="group">
+</form>
+<!-- !NEW_COMMENT -->

@@ -1,0 +1,431 @@
+<!-- MAIN -->
+<script language="javascript" src="{CESTA_STYL}script.import.js"></script>
+<div id="container">
+	<span id="count_ids" style="display:none;">%count</span>
+	
+	%formload
+	
+	%formdb
+	
+	%formsnapshot
+	
+	%formfilters
+
+	%formauto
+
+	<hr class="cistic">
+
+	%formimport
+	
+	%navigation
+	
+	%formend
+	
+</div>
+<!-- !MAIN -->
+
+<!-- FORMDB -->
+<table class="settings-table">
+	<thead>
+		<tr>
+			<td>{LANG:IMPORT;</td>
+		</tr>
+	</thead>
+	 <tr>
+		 <td>
+		 </td>
+	 </tr>
+ </table>
+
+<div id="db">
+	<form action="%url" method="post">
+		<table id="dblist">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Tabulka</th>
+				<th>Sloupec (cislo), hodnota (v uvozovkach) nebo klic (v zavorkach)</th>
+				<th>Musi platit</th>
+			</tr>
+		</thead>
+			<tr>
+				<td>
+					<span id="id_0">0</span>
+				</td>
+				<td>
+					<select id="dbselect" name="table_0">
+						%options
+					</select>
+				</td>
+				<td>
+					<input type="text" name="how_0" size=30 id="howzero">
+				</td>
+				<td>
+					<input type="checkbox" name="where_0" value="true">
+				</td>
+			</tr>
+		</table>
+		
+		<input type="button" value="Pridat polozku" onclick="addRowDB('dblist')" />
+		<input type="button" value="Odebrat polozku" onclick="deleteRow('dblist')" />
+		
+		<table>
+			<tr>
+				<td>
+					<input type="submit" value="Ulozit">
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<!-- !FORMDB -->
+
+<!-- FORMDB_OPTGROUP -->
+<optgroup label="%table">
+%rows
+</optgroup>
+<!-- !FORMDB_OPTGROUP -->
+
+<!-- FORMDB_OPTION -->
+<option value="%table.%name">%table.%name</option>
+<!-- !FORMDB_OPTION -->
+
+
+<!-- FORMSNAPSHOT -->
+<div id="file">
+	<form action="%urlload" method="post" enctype="multipart/form-data">
+		<span>Nazev souboru pro nacteni vzoru:</span>
+		<select name="file">
+			%formsnapshot_files
+		</select>
+		<input type="submit" value="Nacist">
+	</form>
+	<br>
+	
+	<form action="%urlsave" method="post" enctype="multipart/form-data">
+		<span>Nazev souboru pro ulozeni vzoru:</span>
+		<input type="text" name="file">
+		<input type="submit" value="Ulozit">
+	</form>
+	<br>
+	
+	<div>
+	<a href="#" onclick="javascript: ShowPattern();" style="font-weight: bold; color:white;">Zobrazit vzor</a>
+	<pre style="display:none; text-align: left;" id="pattern">
+		%pattern
+	</pre>
+	</div>
+</div>
+<!-- !FORMSNAPSHOT -->
+
+<!-- FORMSNAPSHOT_FILES -->
+<option value="%file">%file</option>
+<!-- !FORMSNAPSHOT_FILES -->
+
+<!-- FORMEND -->
+<div id="end">
+	<form action="%url" method="post">
+		<input type="submit" value="Dokoncit import">
+	</form> 
+</div>
+<!-- !FORMEND -->
+
+<!-- FORMLOAD -->
+<form action="{URL:IMPORT;LOAD}" method="post" enctype="multipart/form-data">
+<table class="settings-table">
+	<thead>
+		<tr>
+			<th colspan=3>{LANG:IMPORT;1;Nacist soubor}</th>
+		</tr>
+	</thead>
+	<tr>
+		<td>
+			{LANG:IMPORT;2;Nacist z disku}
+		</td>
+		<td colspan=2>
+			<input type="file" name="file">	
+		</td>
+	</tr>
+	<tr>
+		<td>
+			{LANG:IMPORT;3;Nacist z URL}
+		</td>
+		<td>
+			<input type="text" name="url">
+		</td>
+		<td>
+			<select name="typ">
+				<option value="text/xml">XML</option>
+				<option value="text/csv">CSV</option>
+			</select>
+		</td>
+	</tr>
+	<tr></tr>
+	<tr>
+		<td colspan=3>
+			<input type="submit" value="Nahrat">
+		</td>
+	</tr>
+</table>
+<!-- !FORMLOAD -->
+
+<!-- FORMIMPORT -->
+<table class="settings-table">
+	<thead>
+		<tr>
+			<th>{LANG:IMPORT;4;Importovane polozky}</th>
+		</tr>
+	</thead>
+	<tr>
+		<td>
+			<table id="importlist">
+				<thead>
+					<tr>
+						<th>ID</th>
+						%formimport_th
+					</tr>
+				</thead>
+				%formimport_tr
+			</table>
+		</td>
+	</tr>
+</table>
+<!-- !FORMIMPORT -->
+
+<!-- FORMIMPORT_TH -->
+<th>%s</th>
+<!-- !FORMIMPORT_TH -->
+
+<!-- FORMIMPORT_TR -->
+<tr>
+	<td><input type="checkbox" name="r_%r" value="true" checked>%r</td>
+	%formimport_td
+</tr>
+<!-- !FORMIMPORT_TR -->
+
+<!-- FORMIMPORT_TD -->
+<td><input type="text" name="r%r_c%c" value="%value" readonly></td>
+<!-- !FORMIMPORT_TD -->
+
+<!-- FORMIMPORT_TD_TEXTAREA -->
+<td><textarea name="r%r_c%c" cols=40 rows=%nrows readonly>%value</textarea></td>
+<!-- !FORMIMPORT_TD_TEXTAREA -->
+
+<!-- FORMFILTERS -->
+<div id="filtry">
+	<form action="%url" method="post">
+		<h2>Zadejte filtry:</h2>
+		<table>
+			<tr>
+				<td><input type="radio" value="%f_all" name="type" checked> <span>Musi platit vsechna pravidla</span></td>
+				<td><input type="radio" value="%f_one_from" name="type"> <span>Musi platit alespon jedno pravidlo</span></td>
+			</tr>
+		</table>
+		
+		<table id="filters">
+			<thead>
+				<tr>
+					<th>
+						ID sloupce
+					</th>
+					<th>
+						Parametr
+					</th>
+					<th>
+						Hodnota
+					</th>
+				</tr>
+			</thead>
+			
+			<tr>
+				<td>
+					%selid
+				</td>
+				
+				<td>
+					<select name="cause_0">
+						<option value="%f_equals">%f_equals</option>
+						<option value="%f_dont_equals">%f_dont_equals</option>
+						
+						<option value="%f_bigger">%f_bigger</option>
+						<option value="$f_e_bigger">%f_e_bigger</option>
+						
+						<option value="%f_smaller">%f_smaller</option>
+						<option value="%f_e_smaller">%f_e_smaller</option>
+						
+						<option value="%f_ereg">%f_ereg</option>
+					</select>
+				</td>
+				
+				<td>
+					<input type="text" name="exp_0">
+				</td>
+			</tr>
+			
+		</table>		
+		<input type="button" value="Pridat pravidlo" onclick="addRow('filters')" />
+		<input type="button" value="Odebrat pravidlo" onclick="deleteRow('filters')" />
+		
+		<table>
+		  <tr>
+			  <td>
+				<input type="submit" value="Filtrovat">
+			  </td>
+		  </tr>
+		</table>
+	</form>
+</div>
+<!-- !FORMFILTERS -->
+
+<!-- FORMFILTERS_TR -->
+<!-- !FORMFILTERS_TR -->
+
+<!-- FORMAUTO -->
+<div id="auto">
+	<h2>Automaticke upravy</h2>
+	
+	<form action="%url" method="post">
+		<table id="autoex">
+			<thead>
+				<tr>
+					<th>
+						ID sloupce
+					</th>
+					<th>
+						Zpusob prace
+					</th>
+					<th>
+						Vzorec (pouzivejte <span id="x">%x</span>)
+					</th>
+				</tr>
+			</thead>
+
+			<tr>
+				<td>
+					%a_selid
+				</td>
+				<td>
+					<select name="%prefixtype_0">
+						<option value="%int">ciselny</option>
+						<option value="%string">textovy</option>
+					</select>
+				</td>
+				<td>
+					<input type="text" name="%prefixexp_0" value="%x">
+				</td>
+			</tr>
+		</table>			
+		<input type="button" value="Pridat upravu" onclick="addRowAuto('autoex', '%prefix')" />
+		<input type="button" value="Odebrat upravu" onclick="deleteRow('autoex')" />
+		
+		<h3>Pouzit filtr pro upravy</h3>
+		<span>
+			<input id="showfchang" type="checkbox" name="activefilters" value="true" onclick="javascript: ShowFchang();" > Aktivovat
+		</span>
+		<br /><br />
+		<div id="fchang">
+			<table>
+				<tr>
+					<td><input type="radio" value="%f_all" name="type" checked> <span>Musi platit vsechna pravidla</span></td>
+					<td><input type="radio" value="%f_one_from" name="type"> <span>Musi platit alespon jedno pravidlo</span></td>
+				</tr>
+			</table>
+		
+			<table id="chfilters">
+				<thead>
+					<tr>
+						<th>
+							ID sloupce
+						</th>
+						<th>
+							Parametr
+						</th>
+						<th>
+							Hodnota
+						</th>
+					</tr>
+				</thead>
+				
+				<tr>
+					<td>
+						%selid
+					</td>
+					
+					<td>
+						<select name="cause_0">
+							<option value="%f_equals">%f_equals</option>
+							<option value="%f_dont_equals">%f_dont_equals</option>
+							
+							<option value="%f_bigger">%f_bigger</option>
+							<option value="$f_e_bigger">%f_e_bigger</option>
+							
+							<option value="%f_smaller">%f_smaller</option>
+							<option value="%f_e_smaller">%f_e_smaller</option>
+							
+							<option value="%f_ereg">%f_ereg</option>
+						</select>
+					</td>
+					
+					<td>
+						<input type="text" name="exp_0">
+					</td>
+				</tr>
+				
+			</table>		
+			<input type="button" value="Pridat pravidlo" onclick="addRow('chfilters')" />
+			<input type="button" value="Odebrat pravidlo" onclick="deleteRow('chfilters')" />
+		</div>
+		
+		<table>
+		  <tr>
+			  <td>
+				<input type="submit" value="Upravit">
+			  </td>
+		  </tr>
+		</table>
+	</form>
+</div>
+<!-- !FORMAUTO -->
+
+<!-- FORMAUTO_TR -->
+
+<!-- !FORMAUTO_TR -->
+
+
+<!-- SELID -->
+<select name="%prefixid_0">
+	%selid_opt
+</select>
+<!-- !SELID -->
+
+<!-- SELID_OPT -->
+<option value="%value">%value</option>
+<!-- !SELID_OPT -->
+
+<!-- NAVIGATION -->
+<table>
+	<tr><td>&nbsp;</td></tr>
+	<tr>
+		<td>
+			<form action="%previous" method="post">
+				<input type="submit" value="Predchozi">
+			</form>
+		</td>
+		
+		<td>
+			<form action="%change" method="post"><form action="%url" method="post">
+				<span style="text-align: center;">
+					<input type="text" value="%count" name="count">
+					<input type="submit" value="Zmenit">
+				</span>
+			</form>
+		</td>
+		
+		<td>
+			<form action="%next" method="post">
+				<input type="submit" value="Nasledujici">
+			</form>
+		</td>
+	</tr>
+</table>
+<!-- !NAVIGATION -->

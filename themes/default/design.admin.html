@@ -1,0 +1,323 @@
+<!-- MAIN_HEADER -->
+<table class="admin-hmenu">
+	<tr>
+		<td>
+			<a href="{URL:ADMIN;ADMIN;SETTINGS}">{LANG:ADMIN;1;Nastavení}</a>
+		</td>
+
+		<td>
+			<a href="{URL:ADMIN;ADMIN;USERS}">{LANG:ADMIN;2;Administrátoři}</a>
+		</td>
+
+		<td style="width:50px;"></td>
+		<td>
+			<a href="{URL:ADMIN;ADMIN;LOGOUT}"><i>{LANG:ADMIN;3;Odhlásit se}</i></a>
+		</td>
+	</tr>
+</table>
+<!-- !MAIN_HEADER -->
+
+<!-- SETTINGS_ROW -->
+<tr>
+	<td>{LANG:ADMIN;%name;%popis}</td>
+	<td><input type="text" name="%name_value" value="%value">
+	<input type="hidden" name="hid_%name_value" value="%value"></td>
+	<td><input type="checkbox" name="%name_remove" value="%name"></td>
+</tr>
+<!-- !SETTINGS_ROW -->
+
+<!-- SETTINGS_TABLE -->
+<form action="{URL:ADMIN;ADMIN;SETTINGS;SAVE}" method="post">
+<table class="settings-table">
+	<thead>
+		<tr>
+			<th>{LANG:ADMIN;15;Údaj}</th>
+			<th>{LANG:ADMIN;16;Hodnota}</th>
+			<th>{LANG:ADMIN;17;Smazání}</th>
+		</tr>
+	</thead>
+%s
+<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+	<thead>
+		<tr>
+				<th colspan=3><small>{LANG:ADMIN;18;Nové nastavení}</small></th>
+		</tr>
+	</thead>
+	<tr>
+		<td><input type="text" name="new_name"></td>
+		<td colspan=2><input type="text" name="new_value"></td>
+	</tr>
+
+<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+	<tr>
+		<td colspan=3><input type="submit" value="{LANG:ADMIN;11;Uložit!}"></td>
+	</tr>
+</table>
+</form>
+<!-- !SETTINGS_TABLE -->
+
+<!-- LIST_MODULES_ROW -->
+<tr>
+	<td style="border: 0; background: #CCC; padding: 5px;">%name</td>
+	<td style="border: 0;">%link</td>
+</tr>
+<!-- !LIST_MODULES_ROW -->
+
+<!-- LIST_TABLE -->
+<p></p>
+<table class='settings-table'>
+	<thead>
+		<tr>
+			<th colspan=2>{LANG:ADMIN;22;Sekce}</th>
+		</tr>
+	</thead>
+	%content
+</table>
+<!-- !LIST_TABLE -->
+
+
+<!-- LOGINBOX -->
+<form action="%url" method="post">
+<table class="settings-table">
+	<thead>
+		<tr>
+			<th colspan=2>{LANG:ADMIN;36;Přihlášení}</th>
+		</tr>
+	</thead>
+
+	<tr>
+		<td>
+			{LANG:ADMIN;4;Login}:
+		</td>
+		<td>
+			<input type="text" name="login">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			{LANG:ADMIN;5;Password}:
+		</td>
+		<td>
+			<input type="password" name="password">
+		</td>
+	</tr>
+	<tr></tr>
+	<tr>
+		<td colspan=2><input type="submit" value="{LANG:ADMIN;6;Přihlásit se}"></td>
+	</tr>
+</table>
+</form>
+<!-- !LOGINBOX -->
+
+<!-- ERROR -->
+<h1>{LANG:ADMIN;7;Chyba}</h1>
+<p>{LANG:ADMIN;8;Vámi zadané přihlašovací údaje jsou neplatné.}</p>
+%loginbox
+<!-- !ERROR -->
+<!-- OK -->
+<h1>{LANG:ADMIN;9;Přihlášení bylo úspěšné.}</h1>
+<p>{LANG:ADMIN;10;Za malou chvíli budete přesměrování na požadovanou stránku.}</p>
+<!-- !OK -->
+
+<!-- USERS_LIST_ALL_TABLE -->
+<h2>{LANG:ADMIN;41;Uzivatele}</h2>
+<form action="{URL:ADMIN;ADMIN;USERS;UPDATE;USERS}" method='post'>
+<table class='settings-table'>
+	<thead>
+		<tr>
+			<th>{LANG:ADMIN;38;ID}</th>
+			<th>{LANG:ADMIN;39;Login}</th>
+			<th colspan=2>{LANG:ADMIN;40;Skupina}</th>
+		</tr>
+	</thead>
+	%s
+	<tr></tr>
+	<tr>
+		<td colspan=4><input type="submit" value="{LANG:ADMIN;46;Ulozit}"></td>
+	</tr>
+</form>
+<form action="{URL:ADMIN;ADMIN;USERS;UPDATE;USERS}" method='post'>
+	<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+	<thead>
+		<tr>
+			<th colspan=4>{LANG:ADMIN;50;Pridat uzivatele}</th>
+		</tr>
+		<tr>
+			<th><small>{LANG:ADMIN;39;Login}</small></th>
+			<th><small>{LANG:ADMIN;51;Password}</small></th>
+			<th colspan=2><small>{LANG:ADMIN;40;Skupina}</small></th>
+		</tr>
+	</thead>
+
+	<tr>
+		<td><input type="text" name="newuser_login" value=""></td>
+		<td><input type="password" name="newuser_password" value=""></td>
+		<td colspan=2><input type="text" name="newuser_group" value=""></td>
+	</tr>
+
+	<tr></tr>
+	<tr>
+		<td colspan=4><input type="submit" value="{LANG:ADMIN;46;Ulozit}"></td>
+	</tr>
+</table>
+</form>
+<!-- !USERS_LIST_ALL_TABLE -->
+
+<!-- USERS_LIST_ALL_ROW -->
+<tr>
+	<td>%id</td>
+	<td><strong>%login</strong></td>
+	<td><input type="text" value="%group" name="%id_group" style='text-align:center;' size=4></td>
+	<td><input type="checkbox" name="%id_del" value="true"></td>
+</tr>
+<!-- !USERS_LIST_ALL_ROW -->
+
+
+<!-- GROUPS_LIST_ALL_TABLE -->
+<h2>{LANG:ADMIN;42;Skupiny}</h2>
+<form action="{URL:ADMIN;ADMIN;USERS;UPDATE;GROUPS}" method='post'>
+<table class='settings-table'>
+	<thead>
+		<tr>
+			<th>{LANG:ADMIN;43;ID}</th>
+			<th>{LANG:ADMIN;44;Nazev}</th>
+			<th colspan=2>{LANG:ADMIN;47;Nahradit}</th>
+		</tr>
+	</thead>
+	%s
+
+	<tr></tr>
+	<tr>
+		<td colspan=4><input type="submit" value="{LANG:ADMIN;45;Ulozit}"></td>
+	</tr>
+
+	<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+	<thead>
+		<tr>
+			<th colspan=4>{LANG:ADMIN;48;Pridat skupinu}</th>
+		</tr>
+	</thead>
+
+	<tr>
+		<td colspan=2><strong>{LANG:ADMIN;49;Nazev}</strong></td>
+		<td colspan=2><input type="text" value="" name="newgroup"></td>
+	</tr>
+
+	<tr></tr>
+	<tr>
+		<td colspan=4><input type="submit" value="{LANG:ADMIN;45;Ulozit}"></td>
+	</tr>
+</table>
+</form>
+<!-- !GROUPS_LIST_ALL_TABLE -->
+
+<!-- GROUPS_LIST_ALL_ROW -->
+<tr>
+	<td>%id</td>
+	<td><input type="text" value="%name" name="%id"></td>
+	<td><input type="checkbox" name="%id_del" value="true"></td>
+	<td><input type="text" value="" name="%id_nahr" size=4></td>
+</tr>
+<!-- !GROUPS_LIST_ALL_ROW -->
+
+<!-- ACCESS_LIST_ALL_ROW -->
+<tr>
+	<td rowspan=2>%id</td>
+	<td rowspan=2><input type="text" value="%name" name="%id_name"></td>
+	<td colspan=2><input type="text" value="%owner" name="%id_owner" size=8 style='text-align:center;'></td>
+	<td colspan=2><input type="text" value="%group" name="%id_group" size=8 style='text-align:center;'></td>
+
+	<td rowspan=2><input type="checkbox" name="%id_aa_r" value="true" %aa_r></td>
+	<td rowspan=2><input type="checkbox" name="%id_aa_w" value="true" %aa_w></td>
+
+	<td rowspan=2><input type="checkbox" name="%id_del" value="true"></td>
+
+</tr>
+<tr>
+	<td><input type="checkbox" name="%id_ao_r" value="true" %ao_r></td>
+	<td><input type="checkbox" name="%id_ao_w" value="true" %ao_w></td>
+
+	<td><input type="checkbox" name="%id_ag_r" value="true" %ag_r></td>
+	<td><input type="checkbox" name="%id_ag_w" value="true" %ag_w></td>
+
+</tr>
+<!-- !ACCESS_LIST_ALL_ROW -->
+
+<!-- ACCESS_LIST_ALL_TABLE -->
+<h2>{LANG:ADMIN;54;Opravneni}</h2>
+<form action="{URL:ADMIN;ADMIN;USERS;UPDATE;ACCESS}" method='post'>
+<table class='settings-table'>
+	<thead>
+		<tr>
+			<th rowspan=2>{LANG:ADMIN;52;ID}</th>
+			<th rowspan=2>{LANG:ADMIN;53;Umisteni}</th>
+			<th colspan=2>{LANG:ADMIN;54;Vlastnik}</th>
+			<th colspan=2>{LANG:ADMIN;55;Skupina}</th>
+			<th colspan=2>{LANG:ADMIN;58;Ostatni}</th>
+			<th rowspan=2>{LANG:ADMIN;63;Smazat}</th>
+		</tr>
+		<tr>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%">{LANG:ADMIN;62;Zapis}</th>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%">{LANG:ADMIN;62;Zapis}</th>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%">{LANG:ADMIN;62;Zapis}</th>
+		</tr>
+	</thead>
+	%s
+
+	<tr></tr>
+	<tr>
+		<td colspan=10><input type="submit" value="{LANG:ADMIN;59;Ulozit}"></td>
+	</tr>
+
+	<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+	<thead>
+		<tr>
+			<th colspan=10>{LANG:ADMIN;60;Pridat opravneni}</th>
+		</tr>
+		<tr>
+			<th rowspan=2 colspan=2>{LANG:ADMIN;53;Umisteni}</th>
+			<th colspan=2>{LANG:ADMIN;54;Vlastnik}</th>
+			<th colspan=2>{LANG:ADMIN;55;Skupina}</th>
+			<th colspan=3>{LANG:ADMIN;58;Ostatni}</th>
+		</tr>
+		<tr>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%">{LANG:ADMIN;62;Zapis}</th>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%">{LANG:ADMIN;62;Zapis}</th>
+			<th style="font-size:80%">{LANG:ADMIN;61;Cteni}</th>
+			<th style="font-size:80%" colspan=2>{LANG:ADMIN;62;Zapis}</th>
+		</tr>
+	</thead>
+
+<tr>
+	<td rowspan=2 colspan=2><input type="text" value="" name="new_name"></td>
+	<td colspan=2><input type="text" value="" name="new_owner" size=8></td>
+	<td colspan=2><input type="text" value="" name="new_group" size=8></td>
+
+	<td rowspan=2><input type="checkbox" name="new_aa_r" value="true" checked></td>
+	<td rowspan=2 colspan=2><input type="checkbox" name="new_aa_w" value="true" ></td>
+
+</tr>
+<tr>
+	<td><input type="checkbox" name="new_ao_r" value="true" checked></td>
+	<td><input type="checkbox" name="new_ao_w" value="true" checked></td>
+
+	<td><input type="checkbox" name="new_ag_r" value="true" checked></td>
+	<td><input type="checkbox" name="new_ag_w" value="true"></td>
+
+</tr>
+
+	<tr></tr>
+	<tr>
+		<td colspan=9><input type="submit" value="{LANG:ADMIN;59;Ulozit}"></td>
+	</tr>
+</table>
+</form>
+<!-- !ACCESS_LIST_ALL_TABLE -->
+

@@ -1,0 +1,57 @@
+<!-- FORM -->
+<form method="get" action="./">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<td><input type="text" name="q" value="%value" size=50></td>
+				<th><input type="submit" value="{LANG:SEARCH;1;Hledej}"></th>
+			</tr>
+		</thead>
+	</table>
+</form>
+<!-- !FORM -->
+
+<!-- WS -->
+<p><strong>{LANG:SEARCH;3;Bylo vyhledavano}</strong> %s</p>
+<!-- !WS -->
+
+<!-- NOTFOUND -->
+<div class="neuspech">
+%s
+</div>
+<!-- !NOTFOUND -->
+
+<!-- FOUND -->
+<div>
+	<h2>%modul</h2>
+	%list
+</div>
+<hr>
+<!-- !FOUND -->
+
+<!-- NICNENALEZENO -->
+<p>{LANG:SEARCH;2;Nic nebylo nalezeno}</p>
+<!-- !NICNENALEZENO -->
+
+<!-- TOOSHORT -->
+<p></p>
+<div class="neuspech">
+{LANG:SEARCH;4;Zadaný řetězec je příliš krátký.}
+</div>
+<!-- !TOOSHORT -->
+
+<!-- ITEM -->
+<li>
+	<h3><a href="%url">%name</a></h3>
+	<p>
+		%description<br>
+		<span><small style="display: none;">(%rank %)</small> <a href="%url">%durl</a></span>
+	</p>
+</li>
+<!-- !ITEM -->
+
+<!-- ITEMS -->
+<ul class="search">
+%s
+</ul>
+<!-- !ITEMS -->

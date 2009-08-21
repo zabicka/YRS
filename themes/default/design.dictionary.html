@@ -1,0 +1,62 @@
+<!-- RULE -->
+<tr>
+	<td>%ID</td>
+	<td><input type="text" name="%ID-co" value="%co"></td>
+	<td><input type="text" name="%ID-cim" value="%cim"></td>
+	<td><input type="text" name="%ID-class" value="%class"></td>
+	<td><a href="%url" target="_blank">&raquo;</td>
+</tr>
+<!-- !RULE -->
+
+<!-- RULES -->
+<form action="%save" method="post">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th>{LANG:DICTIONARY;1;ID}</th>
+				<th>{LANG:DICTIONARY;2;Co}</th>
+				<th>{LANG:DICTIONARY;3;Cim}</th>
+				<th>{LANG:DICTIONARY;4;Trida}</th>
+			</tr>
+		</thead>
+		<tbody>
+			%body
+		</tbody>
+
+		<tr style="visibility: hidden;"><td>&nbsp;</td></tr>
+
+		<thead>
+			<tr>
+				<th colspan=4>{LANG:DICTIONARY;5;Novy}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td></td>
+				<td><input type="text" name="co"></td>
+				<td><input type="text" name="cim"></td>
+				<td><input type="text" name="class"></td>
+			</tr>
+		</tbody>
+
+		<tr style="visibility: hidden;"><td>&nbsp;</td></tr>
+
+		<tfoot>
+			<td colspan=4><input type="submit" value="{LANG:DICTIONARY;6;Ulozit}"></td>
+		</tfoot>
+
+	</table>
+</form>
+<!-- !RULES -->
+
+<!-- SAVE_OK -->
+<div class="uspech">
+{LANG:DICTIONARY;7;Uspesne ulozeno}
+</div>
+<!-- !SAVE_OK -->
+
+<!-- SAVE_KO -->
+<div class="neuspech">
+{LANG:DICTIONARY;8;Nepodarilo se ulozit}
+</div>
+<!-- !SAVE_KO -->

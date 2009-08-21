@@ -1,0 +1,8 @@
+<?php
+define('CESTA_ABSOLUTNI', ''); // default path - http://localhost/YRS/
+define('CESTA_RELATIVNI', ''); // relative path - /YRS/
+define('DEFAULT_LANG_FILE', ''); // default general.php
+define('CESTA_MODULY', ''); // path to modules - default modules/
+define('CESTA_JAZYKY', ''); // path to files with languages - default languages/
+define('CESTA_STYLY', ''); // path to templates - default themes/
+?>

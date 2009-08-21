@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{NAME} - {MOTTO}</title>
+	<link rel="stylesheet" type="text/css" href="{CESTA_STYL}style.css" media="screen">
+	{META}
+</head>
+<body>
+<div id="header">
+	<div id="logo">
+		<h1><a href="{CESTA_ABSOLUTNI}">{NAME}</a></h1>
+		<p>{MOTTO}</p>
+	</div>
+	<!-- end #logo -->
+
+	<div id="menu">
+		<ul>
+			{MENU:1;5}
+		</ul>
+	</div>
+	<!-- end #menu -->
+</div>
+<!-- end #header -->
+<div id="page">
+	<div id="content">
+		<div class="post">
+			{OBSAH}
+		</div>
+	</div>
+	<!-- end #content -->
+	<div id="sidebar">
+		<div id="sidebar-bgtop"></div>
+		<div id="sidebar-content">
+			<ul>
+				<li id="search">
+					{BLOK:LEFT;1}
+				</li>
+				<li>
+					{BLOK:LEFT;2}
+				</li>
+				<li>
+					{BLOK:LEFT;3}
+				</li>
+				<li>
+					<h2>Volutpat Dolore</h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div id="sidebar-bgbtm"></div>
+	</div>
+	<!-- end #sidebar -->
+</div>
+<!-- end #page -->
+<div id="footer">
+	<p>
+		Copyright &#169; 2009 <a href="{URL}"><span>{NAME}</span></a><br />
+		<a href="http://yetty-blog.blogspot.com">Yetty</a>
+		{ADMIN;FOOTER}<br>
+		Celkem {MYSQL;GETCOUNTQUERIES} dotazu na MySQL.
+	</p>
+</div>
+<!-- end #footer -->
+</body>
+</html>

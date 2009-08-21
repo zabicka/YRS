@@ -1,0 +1,4 @@
+# podstrceni
+RewriteEngine on
+Options +FollowSymlinks
+

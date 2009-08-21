@@ -1,0 +1,8 @@
+INSTALL
+===========
+
+Install isn't ready to use and you must install YRS by your hand.
+It's easy - open files db.php.default, settings.php.default and .htaccess.default, set it and
+remove ".default" from its name.
+
+Then import file yrs.sql.default to your DB and run YRS.

@@ -1,0 +1,10 @@
+<?php
+define('DB', 'MySQL'); # MySQL
+define('DB_SERVER', 'localhost'); # server - default localhost
+define('DB_USER', ''); # login to db
+define('DB_PASSWORD', ''); # password to db
+define('DB_DB', 'yrs'); # name of db
+define('DB_KODOVANI', 'UTF8'); # coding
+define('DB_PREFIX', 'yrs_'); # prefix for tables from YRS
+define('DB_PERSISTENT', 'true'); # allowed persistent connect? true or false
+?>

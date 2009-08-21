@@ -1,0 +1,205 @@
+<!-- TRANSLATE_SAVE_OK -->
+<div class="uspech">
+	%s
+</div>
+<!-- !TRANSLATE_SAVE_OK -->
+
+<!-- TRANSLATE_SAVE_KO -->
+<div class="neuspech">
+	%s
+</div>
+<!-- !TRANSLATE_SAVE_KO -->
+
+<!-- LIST_TRANSLATE_FILES -->
+<option value="%file">%name</option>
+<!-- !LIST_TRANSLATE_FILES -->
+
+<!-- LIST_TRANSLATE_SELECT -->
+<form class="translate-select" action="{URL:ADMIN;LANG}" method="post">
+	{LANG:LANG;25;Zvolit soubor}
+	<select name="listfil">
+	%s
+	</select>
+	<input type="submit" value="{LANG:LANG;1;Vybrat}">
+</form>
+<br>
+<form class="translate-select" action="{URL:ADMIN;LANG;NEW}" method="post">
+	{LANG:LANG;26;Vytvorit soubor}
+	<input type="text" name="new">
+	<input type="submit" value="{LANG:LANG;24;Novy}">
+</form>
+<!-- !LIST_TRANSLATE_SELECT -->
+
+<!-- TRANSLATE_PAGE -->
+<p style="font-size: 80%;"><a href="{URL:ADMIN;LANG;IMPORT}">{LANG:LANG;2;>> Importovat soubory z jineho jazyka}</a></p>
+%hlaska
+<h3>{LANG:LANG;3;Soubor}: <i>%name</i></h3>
+%content
+<!-- !TRANSLATE_PAGE -->
+
+<!-- TRANSLATE_PAGE_SAVE_OK -->
+<div class="uspech">
+	{LANG:LANG;4;Preklad byl uspesne ulozen}
+</div>
+<!-- !TRANSLATE_PAGE_SAVE_OK -->
+
+<!-- TRANSLATE_PAGE_SAVE_KO -->
+<div class="neuspech">
+	{LANG:LANG;5;Preklad nebyl uspesne ulozen}
+</div>
+<!-- !TRANSLATE_PAGE_SAVE_KO -->
+
+<!-- TRANSLATE_PAGE_LIST_ONE -->
+<tr>
+	<td>%name</td>
+	<td><input type="text" value="%value" name="%name"></td>
+</tr>
+<!-- !TRANSLATE_PAGE_LIST_ONE -->
+
+<!-- TRANSLATE_PAGE_LIST_ONE_TEXTAREA -->
+<tr>
+	<td>%name</td>
+	<td><textarea name="%name" cols=40 rows=%rows>%value</textarea></td>
+</tr>
+<!-- !TRANSLATE_PAGE_LIST_ONE_TEXTAREA -->
+
+<!-- TRANSLATE_PAGE_LIST -->
+<form action="{URL:ADMIN;LANG;SAVE}" method="post">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th>{LANG:LANG;6;Řetězec}</th>
+				<th>{LANG:LANG;7;Hodnota}</th>
+			</tr>
+		</thead>
+	%content
+
+	<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+	<thead>
+		<tr>
+				<th colspan=3><small>{LANG:LANG;8;Nový řetězec}</small></th>
+		</tr>
+	</thead>
+
+	<tr>
+		<td><input type="text" value="" name="newname"></td>
+		<td><input type="text" value="" name="newvalue"></td>
+	</tr>
+
+
+	<tr>
+		<td colspan=2 style='text-align: right;'>
+			<input type="submit" value="{LANG:LANG;9;Uložit}">
+			<input type="hidden" name="listfil" value="%file">
+		</td>
+	</tr>
+
+	</table>
+ </form>
+<!-- !TRANSLATE_PAGE_LIST -->
+
+<!-- TRANS_IMPORT_OPTION -->
+<option value="%lang">%lang</option>
+<!-- !TRANS_IMPORT_OPTION -->
+
+<!-- TRANS_IMPORT_SELECT -->
+<form method="post" action="{URL:ADMIN;LANG;IMPORT}">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th colspan=3>
+				{LANG:LANG;10;Vyberte jazyk pro import}
+				</th>
+			</tr>
+		</thead>
+
+		<tr>
+			<td>{LANG:LANG;11;Provést import z}</td>
+			<td>
+					<select name="fromlang">
+						%s
+					</select>
+
+			</td>
+			<td><input type="submit" value="{LANG:LANG;12;Spustit import}"></td>
+		</tr>
+	</table>
+</form>
+<p style="font-size:80%;"><a href="{URL:ADMIN;LANG}">{LANG:LANG;21;<< zpet}</a></p>
+<!-- !TRANS_IMPORT_SELECT -->
+
+<!-- TRANS_IMPORT_LIST_ROW_NE -->
+<tr>
+	<td>%file</td>
+	<td><span style="color: green; font-weight:bold;">{LANG:LANG;13;Soubor jeste neexistuje}</span></td>
+	<td><input type="checkbox" name="cre%file" value="create" checked>{LANG:LANG;14;Vytvorit}</td>
+</tr>
+<!-- !TRANS_IMPORT_LIST_ROW_NE -->
+
+<!-- TRANS_IMPORT_LIST_ROW_E -->
+<tr>
+	<td>%file</td>
+	<td><span style="color: red; font-weight:bold;">{LANG:LANG;15;Soubor jiz existuje}</span></td>
+	<td><input type="checkbox" name="rep%file" value="replace">{LANG:LANG;16;Prepsat}</td>
+</tr>
+<!-- !TRANS_IMPORT_LIST_ROW_E -->
+
+<!-- TRANS_IMPORT_LIST -->
+<form action="{URL:ADMIN;LANG;IMPORT;SAVE}" method="post" style="margin-top: 20px;">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th>{LANG:LANG;17;Soubor}</th>
+				<th>{LANG:LANG;18;Stav}</th>
+				<th>{LANG:LANG;19;Akce}</th>
+			</tr>
+		</thead>
+		%body
+		<tr>
+			<td colspan=3>
+				<input type="hidden" name="il" value="%lang">
+				<input type="submit" value="{LANG:LANG;20;Importovat}">
+			</td>
+		</tr>
+	</table>
+</form>
+<!-- !TRANS_IMPORT_LIST -->
+
+<!-- TRANSLATE_NOREADABLE -->
+<p></p>
+<div class="neuspech">
+{LANG:LANG;22;Zvoleny soubor se nepodarilo otevrit. Zkontrolujte opravneni.}
+</div>
+<!-- !TRANSLATE_NOREADABLE -->
+
+<!-- TRANSLATE_NOWRITABLE -->
+<p></p>
+<div class="neuspech">
+{LANG:LANG;23;Zvoleny soubor nelze upravovat! Zkontrolujte opravneni.}
+</div>
+<!-- !TRANSLATE_NOWRITABLE -->
+
+<!-- TRANSIMPORT_SAVE_OK -->
+<div class="uspech">
+{LANG:LANG;27;Import z jineho jazyka byl uspesne proveden}
+</div>
+<!-- !TRANSIMPORT_SAVE_OK -->
+
+<!-- TRANSIMPORT_SAVE_KO -->
+<div class="neuspech">
+{LANG:LANG;28;Import z jineho jazyka se nepodarilo provest}
+</div>
+<!-- !TRANSIMPORT_SAVE_KO -->
+
+<!-- NEWLANG_OK -->
+<div class="uspech">
+{LANG:LANG;29;New language was created sucesfull.}
+</div>
+<!-- !NEWLANG_OK -->
+
+<!-- NEWLANG_KO -->
+<div class="neuspech">
+{LANG:LANG;29;New language can't be created. Check please permission for dir /languages/.}
+</div>
+<!-- !NEWLANG_KO -->

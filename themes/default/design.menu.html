@@ -1,0 +1,167 @@
+<!-- POLOZKA_1 -->
+<li class="%style"><a href="%url">%name</a></li>
+<!-- !POLOZKA_1 -->
+
+<!-- ADMINMENUH1 -->
+<h1>{LANG:MENU;11;ID menu}: %s</h1>
+<!-- !ADMINMENUH1 -->
+
+<!-- STYL_POLOZKA_1_NORMAL -->
+page_item
+<!-- !STYL_POLOZKA_1_NORMAL -->
+
+<!-- STYL_POLOZKA_1_SELECT -->
+current_page_item
+<!-- !STYL_POLOZKA_1_SELECT -->
+
+
+<!-- POLOZKA_2 -->
+<li>
+	<a href="%url" target="_blank">
+		%name
+	</a>
+</li>
+<!-- !POLOZKA_2 -->
+
+
+<!-- TABLEMENU -->
+<table class="settings-table" style="margin-top: 20px;">
+	<thead>
+		<tr>
+			<th colspan=5>%head</th>
+		</tr>
+	</thead>
+	%table
+
+	<tr></tr>
+	<tr>
+		<td colspan=5 style='text-align: center;'>
+			<input type="hidden" value="%od" name="menu">
+			<input type="submit" value="{LANG:MENU;10;Uložit}">
+		</td>
+	</tr>
+</table>
+<!-- !TABLEMENU -->
+
+<!-- FORMMENU -->
+<form action="{URL:ADMIN;MENU;SAVE}" method="post">
+	%s
+</form>
+<!-- !FORMMENU -->
+
+
+<!-- ROWMENU -->
+<tr>
+	<td>%y</td>
+	<td>
+		<input type="text" value="%name" name="name_%x">
+		<input type="hidden" value="%id" name="id_%x">
+		<input type="hidden" value="%menu_id" name="menu_id_%x">
+	</td>
+	<td>
+		<input type="text" value="%url" name="url_%x" size=30>
+	</td>
+<!--	<td>
+		<input type="text" value="%lang" name="lang_%x" size=3 maxlength=2>
+	</td> -->
+	<td>
+		<select name="weight_%x">
+			<option value="%weight">%weight</option>
+			<option value="0">0</option>
+			<option value="10">10</option>
+			<option value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+			<option value="50">50</option>
+			<option value="60">60</option>
+			<option value="70">70</option>
+			<option value="80">80</option>
+			<option value="90">90</option>
+			<option value="100">100</option>
+		</select>
+	</td>
+	<td>
+		<input type="checkbox" name="smazat_%x" value="true">{LANG:MENU;9;Smazat}
+	</td>
+</tr>
+<!-- !ROWMENU -->
+
+
+<!-- NEWKO -->
+<div class="neuspech">
+{LANG:MENU;8;Novou polozku v menu se nepodarilo vytvorit}
+</div>
+<!-- !NEWKO -->
+
+
+<!-- NEWOK -->
+<div class="uspech">
+{LANG:MENU;7;Nova polozka byla uspesne vytvorena}
+</div>
+<!-- !NEWOK -->
+
+
+<!-- NEWMENU -->
+<form action="{URL:ADMIN;MENU;NEW}" method="post">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th colspan=3><small>{LANG:MENU;14;Nápověda}</small></th>
+			</tr>
+		</thead>
+		<tr>
+			<td colspan=2 style='text-align: left;'><p>{LANG:MENU;13;Tady bude nápověda s adresou a jazykem}</p></td>
+		</tr>
+
+		<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+		<thead>
+			<tr>
+				<th colspan=2>
+				{LANG:MENU;1;Vytvořit novou položku v menu}
+				</th>
+			</tr>
+		</thead>
+		<tr>
+			<td><strong>{LANG:MENU;2;ID menu}</strong></td>
+			<td><input type="text" name="menu" size=30></td>
+		</tr>
+		<tr>
+			<td><strong>{LANG:MENU;3;Název}</strong></td>
+			<td><input type="text" value="" name="nazev"  size=30></td>
+		</tr>
+		<tr>
+			<td><strong>{LANG:MENU;4;Adresa}</strong></td>
+			<td><input type="text" value="" name="url"  size=30></td>
+		</tr>
+<!--		<tr>
+			<td><strong>{LANG:MENU;5;Jazyk}</strong></td>
+			<td><input type="text" value="" name="lang"  size=30 maxlength=2></td>
+		</tr> -->
+		<tr>
+			<td><strong>{LANG:MENU;12;Hodnota}</strong></td>
+			<td>
+				<select name="weight">
+					<option value="0">0</option>
+					<option value="10">10</option>
+					<option value="20">20</option>
+					<option value="30">30</option>
+					<option value="40">40</option>
+					<option value="50">50</option>
+					<option value="60">60</option>
+					<option value="70">70</option>
+					<option value="80">80</option>
+					<option value="90">90</option>
+					<option value="100">100</option>
+				</select>
+			</td>
+		</tr>
+
+	<tr></tr>
+
+		<tr>
+			<td colspan=2><input type="submit" value="{LANG:MENU;6;Uložit}"></td>
+		</tr>
+	</table>
+</form>
+<!-- !NEWMENU -->

@@ -1,0 +1,180 @@
+<!-- INIT -->
+<!-- !INIT -->
+
+<!-- LIST_CATEGORY -->
+<thead><tr><th colspan=6>%category</th></tr></thead>
+<!-- !LIST_CATEGORY -->
+
+<!-- LISTPAGESROW -->
+<tr class='%styl'>
+	<!-- <td>%id</td> -->
+	<td><strong>%name</strong></td>
+	<td><a href='{URL:_refresh;page;%url}' target='_blank'>%url</a></td>
+<!--	<td style='text-align: center;'>%lang</td> -->
+	<td><a href="%uprava">{LANG:PAGE;1;Uprav}</a></td>
+	<td><a href="%smaz">{LANG:PAGE;2;Smazat}</a></td>
+</tr>
+<!-- !LISTAPAGESROW -->
+
+<!-- POTVRZENISMAZANI -->
+<h1>{LANG:PAGE;3;Potvrzení}</h1>
+<p>{LANG:PAGE;4;Opravdu chcete smazat stranku }<a href="{URL:PAGE;_refresh;%str;;;;;%lang}" target="_blank"><strong>%str</strong></a>?</p>
+<form action="{URL:ADMIN;PAGE}" method="post">
+	<input type="hidden" value="%str" name="delete">
+	<input type="hidden" value="%lang" name="jazyk">
+	<input type="submit" value="{LANG:PAGE;2;Smazat}">
+</form>
+<!-- !POTVRZENISMAZANI -->
+
+<!-- LISTPAGESTABLE -->
+<p></p>
+<table>
+<!--	<thead>
+		<tr>
+			<th>{LANG:PAGE;19;ID}</th>
+			<th>{LANG:PAGE;20;Nazev}</th>
+			<th>{LANG:PAGE;23;URL}</th>
+			<th>{LANG:PAGE;21;Jazyk}</th>
+			<th colspan=2>{LANG:PAGE;22;Akce}</th>
+		</tr>
+	</thead> -->
+	%s
+</table>
+<!-- !LISTAPAGESTABLE -->
+
+<!-- ULOZENO -->
+<div class="uspech">
+	{LANG:PAGE;5;Stránka byla úspěšně uložena. Můžete si ji prohlédnout }
+	<a href="{URL:_refresh;PAGE;%page}" target="_blank">{LANG:PAGE;6;zde}</a>.
+</div>
+<!-- !ULOZENO -->
+
+<!-- NEULOZENO -->
+<div class="neuspech">
+	{LANG:PAGE;25;Stránku se nepodarilo ulozit.}
+</div>
+<!-- !NEULOZENO -->
+
+<!-- CNEWPAGE -->
+<form action="{URL:ADMIN;PAGE;NEWPAGE}" method="post">
+	<table class="settings-table">
+		<thead>
+			<tr>
+				<th colspan=3>{LANG:PAGE;8;Vytvořit novou stránku}</th>
+			</tr>
+		</thead>
+		<tr>
+			<td><strong>{LANG:PAGE;9;URL adresa stránky}</strong></td>
+			<td><input type="text" value="" name="url"></td>
+			<td><input type="submit" value="{LANG:PAGE;10;Vytvoř}"></td>
+		</tr>
+	</table>
+</form>
+<!-- !CNEWPAGE -->
+
+<!-- STRANKA -->
+<h1>%h1</h1>
+<div style='font-size: 85%; color: #555;'>%description</div>
+%content
+
+<p>
+	{URL;ASTYLE:_blank}
+</p>
+<!-- !STRANKA -->
+
+<!-- LICATEGORY -->
+<a href="#edit"><li onclick='javascript:document.getElementById("kategorie").value = "%s";showCategories();'>%s</li></a>
+<!-- !LICATEGORY -->
+
+<!-- EDIT -->
+<form action="{URL:admin;page;save;%url}" method="post">
+<table class="settings-table" id='edit'>
+	<thead>
+		<tr>
+			<th colspan=2>{LANG:PAGE;18;Informace}</th>
+		</tr>
+	</thead>
+	<tr>
+		<td>
+			<label>{LANG:PAGE;12;URL}:</label>
+		</td>
+		<td>
+		<input type="text" name="url" value="%url" readonly>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>{LANG:PAGE;13;Název}:</label>
+		</td>
+		<td>
+		<input type="text" name="name" value="%name">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>{LANG:PAGE;26;Datum}:</label>
+		</td>
+		<td>
+		<input type="text" name="date" value="%date"> <small>{LANG:PAGE;27;(Dodrzujte format!)}</small>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>{LANG:PAGE;24;Kategorie}:</label>
+		</td>
+		<td>
+		<input type="text" id="kategorie" name="category" value="%category">
+		<script>
+		function showCategories() {
+			var categories = document.getElementById("categories").style.display;
+
+			if(categories=="none") {
+				categories = "block";
+			} else {
+				categories = "none";
+			}
+
+			document.getElementById("categories").style.display = categories;
+		}
+		</script>
+		<small><a href="#edit" onclick='javascript:showCategories();'>>></a></small>
+		<div id='categories' style='display:none;'>
+			<strong>{LANG:PAGE;25;Existujici kategorie}:</strong>
+			<ul>
+				%categories
+			</ul>
+		</div>
+		</td>
+	</tr>
+	<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+	<thead>
+		<tr>
+			<th colspan=2>{LANG:PAGE;14;Popis}</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan=2>
+		<textarea rows=5 cols=65 style="text-align:left;" id='areaforum' name='description'>%description</textarea>
+		</td>
+	</tr>
+		<tr style='visibility: hidden;'><td>&nbsp;</td></tr>
+
+	<thead>
+		<tr>
+			<th colspan=2>{LANG:PAGE;15;Obsah}</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan=2>
+			<textarea rows=30 cols=65 style="text-align:left;" id='areatexyla' name='content'>%content</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td colspan=2 style='text-align:right;'>
+		<input type="submit" value="{LANG:PAGE;17;Uložit}">
+		</td>
+	</tr>
+</table>
+</form>
+<!-- !EDIT -->
