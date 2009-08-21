@@ -5,4 +5,9 @@ Install isn't ready to use and you must install YRS by your hand.
 It's easy - open files db.php.default, settings.php.default and .htaccess.default, set it and
 remove ".default" from its name.
 
-Then import file yrs.sql.default to your DB and run YRS.
+Then run file password.php in dir with YRS with your root's password past the ?
+(e.g. write in your browser: http://localhost/YRS/password.php?secret_password).
+Find "GENERATE YOUR PASSWORD" in yrs.sql.default and replace it - write hash from password.php.
+
+Then import file yrs.sql.default to your DB and run YRS. You can login with user name "root" and
+with your password.
