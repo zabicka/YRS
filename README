@@ -8,6 +8,7 @@ remove ".default" from its name.
 Then run file password.php in dir with YRS with your root's password past the ?
 (e.g. write in your browser: http://localhost/YRS/password.php?secret_password).
 Find "GENERATE YOUR PASSWORD" in yrs.sql.default and replace it - write hash from password.php.
+You can remove file password.php.
 
 Then import file yrs.sql.default to your DB and run YRS. You can login with user name "root" and
 with your password.
