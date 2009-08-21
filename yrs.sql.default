@@ -241,7 +241,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=``@`%` SQL SECURITY DEFINER VIEW `yrs_diction
 -- Records
 -- ----------------------------
 INSERT INTO `yrs_admin_groups` VALUES ('1', 'root');
-INSERT INTO `yrs_admin_users` VALUES ('4', 'root', '1eb21a35b1d43f5ae1b5ee30987d6efe', '1');
+INSERT INTO `yrs_admin_users` VALUES ('1', 'root', 'GENERATE YOUR PASSWORD', '1');
 INSERT INTO `yrs_dictionary` VALUES ('1', 'article', 'page', '', 'en');
 INSERT INTO `yrs_dictionary` VALUES ('2', 'clanek', 'page', '', 'cs');
 INSERT INTO `yrs_dictionary` VALUES ('3', 'page', 'page', '', 'fr');
