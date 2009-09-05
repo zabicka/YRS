@@ -30,7 +30,7 @@ ze skriptu password.php. Pote skript password.php smazte.
 
 Poslednim krokem je naimportovani souboru yrs.sql.default do vasi databaze. Zatim je mozna instalace jen
 do databaze MySQL, pokud ale tabulky prenesete do jine databaze, je velka pravdepodobnost, ze funkcnost
-nebude nijak omezena. O databazi se stara Dibi (http://dibiphp.net).
+nebude nijak omezena. O databazi se stara Dibi (http://dibiphp.com).
 
 Tim je instalace hotova. Do systemu se muzete prihlasit s uzivatelskym jmenem "root" a vasim heslem.
 
