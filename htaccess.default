@@ -1,7 +1,0 @@
-RewriteEngine on
-Options +FollowSymlinks
-
-RewriteCond %{REQUEST_URI} !\.[[:alnum:]]+$
-RewriteRule ^(.+[^/])$ PATH [R] 3 # WRITE RELATIVE PATH!
-
-RewriteRule ^([^/]+)/([^/]+)?/?([^/]+)?/?([^/]+)?/?([^/]+)?/?([^/]+)?/?([^/]+)?/?([^/]+)?/?([^/]+)?$ PATH?lang=$1&class=$2&akce=$3&parametr1=$4&parametr2=$5&parametr3=$6&parametr4=$7&parametr5=$8 [QSA] # WRITE RELATIVE PATH!
