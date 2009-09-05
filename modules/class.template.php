@@ -23,12 +23,15 @@ class Template {
 
 	const REPEAT_GET_BLOCKS=5;
 
-
+	static $title = array();
+	static $meta = array();
 
     /**
      * promenna pro ukladani jednotlivych bloku, ktere se maji zobrazit
      */
     var $bloky = array();
+
+	static $file = '';
 
     /**
      * nazev pouziteho stylu
@@ -118,25 +121,23 @@ class Template {
      * @return string
      */
     private function konstanty($ret) {
-        global $db;
-
-        // pri instalaci by to hazelo chybu
-        if($db!="" and !is_string($db)) {
-			if($db->fetch_array("show tables from yrs like '__settings'")!="") {
-				$settings = $db->query("select * from __settings");
-				while($radek = $db->fetch_array($settings)) {
-					$ret = str_replace("{".strtoupper($radek[name])."}", $radek[value], $ret);
-				}
-				mysql_free_result($settings);
+		if(DB::query("show tables from yrs like '__settings'")->fetchSingle()) {
+			$settings = DB::query("select * from __settings");
+			foreach($settings->getIterator() as $row) {
+				$ret = str_replace("{".strtoupper($row[name])."}", $row[value], $ret);
 			}
+		}
 
-            $ret = str_replace("{CESTA_STYL}", trim(CESTA_ABSOLUTNI, "/")."/".CESTA_STYLY."/".GENERAL_TEMPLATE."/", $ret);
-			$ret = str_replace("{CESTA_ABSOLUTNI}", trim(CESTA_ABSOLUTNI, "/")."/".$_COOKIE[lang]."/", $ret);
+		$ret = str_replace("{CESTA_STYL}", trim(CESTA_ABSOLUTNI, "/")."/".CESTA_STYLY."/".GENERAL_TEMPLATE."/", $ret);
+		$ret = str_replace("{CESTA_ABSOLUTNI}", trim(CESTA_ABSOLUTNI, "/")."/".$_COOKIE[lang]."/", $ret);
 
-			// seznam vsech bloku, ktere se odstrani, pokud budou prazdne.
-			$ret = str_replace("{INIT}", "", $ret);
-			$ret = str_replace("{META}", "", $ret);
-        }
+		// seznam vsech bloku, ktere se odstrani, pokud budou prazdne.
+		$ret = str_replace("{INIT}", "", $ret);
+		$ret = str_replace("{META}", implode("\n", Template::$meta), $ret);
+
+		$titles = implode(" | ", Template::$title);
+		$ret = str_replace("{TITLE}", ($titles!='') ? " | ".$titles : '', $ret);
+
         return $ret;
     }
 
@@ -187,6 +188,10 @@ class Template {
      * @return string
      */
     public function render($soubor="") {
+		$soubor = ($soubor == '') ? self::$file : $soubor;
+
+		$soubor = ($soubor == '') ? Dictionary::modul($_GET['class']).'.html' : $soubor;
+
 		$only = ($_SESSION["only"]=="") ? $_GET["only"] : $_SESSION["only"];
 
         // nacteni indexu
@@ -255,6 +260,8 @@ class Template {
                 $func = strtolower($func);
 
 				$url = strtolower("/".$name."/".(($func=="" or !method_exists($name, $func)) ? "view" : $func)."/".$vysledek[1]);
+
+				$name = (class_exists($name.'View')) ? $name.'View' : $name;
 
                 // pokud takovato trida existuje
 				if(($html=TMP::getTMP($url))!==false and $init->showtmp!=false) {

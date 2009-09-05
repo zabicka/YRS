@@ -14,3 +14,39 @@ Then import file yrs.sql.default to your DB and run YRS. You can login with user
 with your password.
 
 Lot of fun :).
+
+
+JAK NA INSTALACI
+================
+
+Automaticka instalace neni zatim pouzitelna a musite proto instalovat YRS rucne. Neni to obtizne -
+v textovem editoru otevrete soubory db.php.default, settings.php.default and .htaccess.default, nastavite
+pozadovane udaje (pristupy k databazim, cesty apod.) a prejmenujete tak, ze odstranite .default z nazvu.
+
+Pak spustite skript password.php zadanim cesty skriptu do vaseho prohlizece a za ? zadate heslo administratora
+systemu (adresa muze vypadat napr. takto http://localhost/YRS/password.php?tajne_heslo). Ziskany vystup zkopirujte.
+Pote otevrte soubor yrs.sql.default, vyhledejte retezec "GENERATE YOUR PASSWORD" a nahradte ho ziskanym vystupem
+ze skriptu password.php. Pote skript password.php smazte.
+
+Poslednim krokem je naimportovani souboru yrs.sql.default do vasi databaze. Zatim je mozna instalace jen
+do databaze MySQL, pokud ale tabulky prenesete do jine databaze, je velka pravdepodobnost, ze funkcnost
+nebude nijak omezena. O databazi se stara Dibi (http://dibiphp.net).
+
+Tim je instalace hotova. Do systemu se muzete prihlasit s uzivatelskym jmenem "root" a vasim heslem.
+
+
+CHANGES (CZ)
+============
+
+1. Pouziti trochu vice MVC - kazdy modul by mel mit tridy Modul, ModulAdmin, ModulView
+	a.) Modul - obsahuje vsechny metody, ktere slouzi jako model, defacto veskere metody, ktere se nezobrazuji a neslouzi jako controllery.
+	b.) ModulAdmin - obsahuje metody, ktere smi zobrazit administrator a jejich controllery.
+	c.) ModulView - obsahuje metody, ktere smi zorbazit bezny uzivatel a jejich controllery.
+
+2. Aplikace databazoveho layeru Dibi.
+
+3. Vypusteni zastaralych funkci adresa() a slovnik() a nahrazeni tridami URL a Dictionary
+
+4. Cacheovani je v soucasnem stavu nepouzitelne, vypnuti, potreba doladit:
+	a.) Administraci
+	b.) Cacheovani nadpisu, meta apod.

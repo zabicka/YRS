@@ -30,8 +30,8 @@ class URL {
 
 		$args = removeEmptyFields($args);
 
-		$class = urlencode(rslovnik($args[1], $lang));
-		$action = urlencode(rslovnik($args[2], $lang, $args[1]));
+		$class = Dictionary::translation($args[1]);
+		$action = Dictionary::translation($args[2], $args[1]);
 
 		unset($args[0], $args[1], $args[2]);
 
@@ -82,17 +82,16 @@ class URL {
 	}
 
 	public function getAddress($trida=NULL, $akce=NULL, $parametr1=NULL, $parametr2=NULL,
-$parametr3=NULL, $parametr4=NULL, $parametr5=NULL, $jazyk=NULL, $ziskej=false) {
+$parametr3=NULL, $parametr4=NULL, $parametr5=NULL, $jazyk=NULL) {
 				return
 			"/".
 			trim(
-				slovnik(
+				Dictionary::modul(
 					(($trida=="")?$_GET["class"]:$trida)
 				)."/".
 
-				slovnik(
-					(($akce=="")?$_GET["akce"]:$akce)
-					, false, NULL, $_GET["class"]
+				Dictionary::modul(
+					(($akce=="")?$_GET["akce"]:$akce), $_GET["class"]
 				)."/".
 
 				(($parametr1=="")?$_GET["parametr1"]:$parametr1)."/".

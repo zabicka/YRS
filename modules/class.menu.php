@@ -27,10 +27,10 @@ class Menu {
 	 * @return string HTML
 	 */
 	public function admin() {
-		global $db;
+		$args = func_get_args();
 		$ret = "";
 
-		if($_GET["parametr1"]=="new") {
+		if($args[0]=='new') {
 			if($this->adminNew()) {
 				$ret .= $this->design["newok"];
 			} else {
@@ -43,10 +43,10 @@ class Menu {
 		}
 
 		// 15.7 - umozneni editovat pouze v aktualnim jazyce
-		$seznam = $db->query("select * from __menu_menus where lang='".$_COOKIE["lang"]."' order by weight desc");
+		$query = DB::query("select * from __menu_menus where lang=%s order by weight desc", $_COOKIE['lang']);
 
-		while($radek = $db->fetch_array($seznam)) {
-			$polozky[$radek["menu"]][] = $radek;
+		foreach($query->getIterator() as $row) {
+			$polozky[$row["menu"]][] = $row;
 		}
 		ksort($polozky);
 
@@ -127,11 +127,10 @@ class Menu {
 
 				// kontrola validity dat
 				if($id!="" and is_numeric($id) and $nazev!= "" and $url!="") {
-					$this->adminInsert($nazev, $url, $lang, $weight, $menu_id, $id);
+					$this->adminInsert($nazev, $url, $weight, $menu_id, $id);
 				}
 			} else {
-				global $db;
-				$db->query("delete from __menu_menus where ID='".$id."' limit 1");
+				DB::query("delete from __menu_menus where ID=%i limit 1", $id);
 			}
 
 			$x++;
@@ -150,16 +149,12 @@ class Menu {
 		$id_menu = $_POST["menu"];
 		$nazev = $_POST["nazev"];
 		$url = $_POST["url"];
-		//$lang = (strlen($_POST["lang"])<=2) ? strtolower(substr($_POST["lang"], 0, 2)) : ""; # pokud je jazyk delsi nez dva znaky, bude odstranen
-
-		// 15.7 - umozneni editovat pouze aktualni jazyk
-		$lang = $_COOKIE["lang"];
 
 		$weight = $_POST["weight"];
 
 		// kontrola validity dat
 		if($id_menu!="" and is_numeric($id_menu) and $nazev!= "" and $url!="") {
-			if($this->adminInsert($nazev, $url, $lang, $weight, $id_menu)) {
+			if($this->adminInsert($nazev, $url, $weight, $id_menu)) {
 				return true;
 			}
 		} else {
@@ -167,17 +162,24 @@ class Menu {
 		}
 	}
 
-	private function adminInsert($nazev, $url, $lang, $weight, $id_menu=NULL, $id=NULL) {
-		global $db;
-
+	private function adminInsert($nazev, $url, $weight, $id_menu, $id=NULL) {
 		if(ereg("://", $url)) {
+			$data = array(
+				'menu' => $id_menu,
+				'lang' => $lang,
+				'name' => $nazev,
+				'url' => $url,
+				'weight' => $weight,
+				'lang' => $_COOKIE['lang'],
+			);
+
 			// pridani polozky do DB
 			if($id==NULL and $id_menu!="") {
-				$db->query("insert into __menu_menus (menu, lang, name, url, weight) values ('".$id_menu."', '".$lang."', '".$nazev."', '".$url."', '".$weight."')");
+				DB::query("insert into __menu_menus", $data);
 			} else {
-				$db->query("replace __menu_menus (menu, ID, lang, name, url, weight) values ('".$id_menu."', '".$id."', '".$lang."', '".$nazev."', '".$url."', '".$weight."')");
+				$data['ID'] = $id;
+				DB::query("replace __menu_menus ", $data);
 			}
-
 
 		// pokud ma adresa tva YRS
 		} else {
@@ -187,19 +189,39 @@ class Menu {
 			// odstraneni prazdnych poli
 			$aurl = removeEmptyFields($aurl);
 
+			$parametry = array(
+					'name' => $nazev,
+					'menu' => $id_menu,
+					'lang' => $_COOKIE['lang'],
+					'weight' => $weight,
+			);
+
 			// pokud je prvni cast retezce jazyk
 			if(strlen($aurl[0])<=2) {
-				$parametry = "'".slovnik($aurl[1])."', '".$aurl[2]."', '".$aurl[3]."', '".$aurl[4]."', '".$aurl[5]."', '".$aurl[6]."', '".$aurl[7]."', '".$aurl[0]."'";
+				$parametry['class'] = Dictionary::modul($aurl[1]);
+				$parametry['akce'] = $aurl[2];
+				$parametry['parametr1'] = $aurl[3];
+				$parametry['parametr2'] = $aurl[4];
+				$parametry['parametr3'] = $aurl[5];
+				$parametry['parametr4'] = $aurl[6];
+				$parametry['parametr5'] = $aurl[7];
+				$parametry['change_lang'] = $aurl[0];
 			} else {
-				$parametry = "'".slovnik($aurl[0])."', '".$aurl[1]."', '".$aurl[2]."', '".$aurl[3]."', '".$aurl[4]."', '".$aurl[5]."', '".$aurl[6]."', ''";
+				$parametry['class'] = Dictionary::modul($aurl[0]);
+				$parametry['akce'] = $aurl[1];
+				$parametry['parametr1'] = $aurl[2];
+				$parametry['parametr2'] = $aurl[3];
+				$parametry['parametr3'] = $aurl[4];
+				$parametry['parametr4'] = $aurl[5];
+				$parametry['parametr5'] = $aurl[6];
 			}
 
-			if($id==NULL) {
-				$sql = sprintf("insert into __menu_menus (menu, lang, name, weight, class, akce, parametr1, parametr2, parametr3, parametr4, parametr5, change_lang) values ('".$id_menu."', '".$lang."', '".$nazev."', '".$weight."', %s)", $parametry);
+			if(!$id) {
+				DB::query("insert into __menu_menus", $parametry);
 			} else {
-				$sql = sprintf("replace __menu_menus (menu, ID, lang, name, weight, class, akce, parametr1, parametr2, parametr3, parametr4, parametr5, change_lang) values ('".$id_menu."', '".$id."', '".$lang."', '".$nazev."', '".$weight."', %s)", $parametry);
+				$parametry['ID'] = $id;
+				DB::query("replace __menu_menus", $parametry);
 			}
-			$db->query($sql);
 		}
 
 		return true;
@@ -207,32 +229,6 @@ class Menu {
 
 	private function adminMenu($menu) {
 		return $menu;
-	}
-
-	/**
-	 *
-	 */
-	public function install() {
-		global $db, $design;
-		if($db->query("CREATE TABLE if not exists `__menu_menus` (
-`ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`menu` INT NOT NULL ,
-`lang` VARCHAR( 2 ) NOT NULL ,
-`name` VARCHAR( 255 ) NOT NULL ,
-`url` VARCHAR( 255 ) NOT NULL ,
-`class` VARCHAR( 128 ) NOT NULL ,
-`akce` VARCHAR( 128 ) NOT NULL ,
-`parametr1` VARCHAR( 128 ) NOT NULL ,
-`parametr2` VARCHAR( 128 ) NOT NULL ,
-`parametr3` VARCHAR( 128 ) NOT NULL ,
-`parametr4` VARCHAR( 128 ) NOT NULL ,
-`parametr5` VARCHAR( 128 ) NOT NULL ,
-`change_lang` VARCHAR( 2 ) NOT NULL ,
-`weight` INT NOT NULL)")) {
-			$ret .= design($design["radek"], array("nazev"=>SM_INSTALL_DB, "stav"=>"[OK]", "barva"=>"true", "style"=>"lichy"));
-		}
-
-		return $ret;
 	}
 
 	private function adresa($url, $args) {
@@ -251,7 +247,6 @@ class Menu {
 	 *
 	 */
 	public function view($parametry) {
-		global $db;
 
 		/** retezec, ktery se bude vracet */
 		$ret = '';
@@ -261,12 +256,12 @@ class Menu {
 
 		// nacteni polozek menu
 		/** @todo Zjistit zda plati ze weight je cim vyssi cislo, tim vyssi dulezitost */
-		$sql = $db->query('select * from __menu_menus where menu="'. (int) $menu.'" and
-		lang="'.$_COOKIE['lang'].'" order by weight desc '.(($pocet!=NULL) ? 'limit '. (int) $pocet : ''));
+		$sql = DB::query('select * from __menu_menus where menu=%i and
+		lang="'.$_COOKIE['lang'].'" order by weight desc '.(($pocet!=NULL) ? 'limit '. (int) $pocet : ''), $menu);
 
 		// prochazeni polozkami DB
 		$x = 1;
-		while($row=$db->fetch_array($sql)) {
+		foreach($sql->getIterator() as $row) {
 			$styl = $this->design['menu_'.$row[menu].'_polozka_'.$x];
 
 			$design = ($styl!='') ? $styl : $this->design['menu_'.$row[menu].'_default'];

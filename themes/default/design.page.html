@@ -1,6 +1,17 @@
 <!-- INIT -->
 <!-- !INIT -->
 
+<!-- CATEGORY_LIST_PAGES -->
+<div class='list-page'>
+	<h2><a href="%url">%name</a></h2>
+	<span class='date'>%datetime</span>
+	<p>
+		%description<br>
+		<span class='continue'><a href="%url" class=''>{LANG:PAGE;28;Číst...}</a></span>
+	</p>
+</div>
+<!-- !CATEGORY_LIST_PAGES -->
+
 <!-- LIST_CATEGORY -->
 <thead><tr><th colspan=6>%category</th></tr></thead>
 <!-- !LIST_CATEGORY -->
@@ -18,13 +29,16 @@
 
 <!-- POTVRZENISMAZANI -->
 <h1>{LANG:PAGE;3;Potvrzení}</h1>
-<p>{LANG:PAGE;4;Opravdu chcete smazat stranku }<a href="{URL:PAGE;_refresh;%str;;;;;%lang}" target="_blank"><strong>%str</strong></a>?</p>
-<form action="{URL:ADMIN;PAGE}" method="post">
-	<input type="hidden" value="%str" name="delete">
-	<input type="hidden" value="%lang" name="jazyk">
+<p>{LANG:PAGE;4;Opravdu chcete smazat stranku }<a href="{URL:PAGE;_refresh;%url}" target="_blank"><strong>%name</strong></a>?</p>
+<form action="{URL:ADMIN;PAGE;delete;%url}" method="post">
+	<input type="hidden" value="%url" name="delete">
 	<input type="submit" value="{LANG:PAGE;2;Smazat}">
 </form>
 <!-- !POTVRZENISMAZANI -->
+
+<!-- NEUSPECHSMAZANI -->
+<h1>{LANG:PAGE;29;Stranku se nepodarilo smazat}</h1>
+<!-- !NEUSPECHSMAZANI -->
 
 <!-- LISTPAGESTABLE -->
 <p></p>
@@ -40,7 +54,7 @@
 	</thead> -->
 	%s
 </table>
-<!-- !LISTAPAGESTABLE -->
+<!-- !LISTPAGESTABLE -->
 
 <!-- ULOZENO -->
 <div class="uspech">

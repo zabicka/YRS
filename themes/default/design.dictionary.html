@@ -1,22 +1,23 @@
 <!-- RULE -->
 <tr>
 	<td>%ID</td>
-	<td><input type="text" name="%ID-co" value="%co"></td>
-	<td><input type="text" name="%ID-cim" value="%cim"></td>
-	<td><input type="text" name="%ID-class" value="%class"></td>
+	<td><input type="text" name="%ID_translation" value="%translation"></td>
+	<td><input type="text" name="%ID_modul" value="%modul"></td>
+	<td><input type="text" name="%ID_class" value="%class"></td>
 	<td><a href="%url" target="_blank">&raquo;</td>
 </tr>
 <!-- !RULE -->
 
 <!-- RULES -->
+<h1>{LANG:DICTIONARY;name;Sprava prekladu}</h1>
 <form action="%save" method="post">
 	<table class="settings-table">
 		<thead>
 			<tr>
 				<th>{LANG:DICTIONARY;1;ID}</th>
-				<th>{LANG:DICTIONARY;2;Co}</th>
-				<th>{LANG:DICTIONARY;3;Cim}</th>
-				<th>{LANG:DICTIONARY;4;Trida}</th>
+				<th>{LANG:DICTIONARY;2;Preklad}</th>
+				<th>{LANG:DICTIONARY;3;Modul}</th>
+				<th colspan=2>{LANG:DICTIONARY;4;Trida}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -27,14 +28,14 @@
 
 		<thead>
 			<tr>
-				<th colspan=4>{LANG:DICTIONARY;5;Novy}</th>
+				<th colspan=5>{LANG:DICTIONARY;5;Novy}</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td></td>
-				<td><input type="text" name="co"></td>
-				<td><input type="text" name="cim"></td>
+				<td><input type="text" name="translation"></td>
+				<td><input type="text" name="modul"></td>
 				<td><input type="text" name="class"></td>
 			</tr>
 		</tbody>

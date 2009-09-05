@@ -76,20 +76,19 @@ class TMP {
 	 * Nejdrive se vola funkce {@link TMP::AccessbyURL}, ktera zjistuje ID opravneni, pripadne jestli opravneni vubec existuje. Pokud ano, nacte se z databaze interval a cas kdy byl ulozen docasny soubor. Pokud neni interval opravneni nulovy (rovna se zakazani, muze se hodit pro zakazani nejake podstranky, ktera bude povolena) se rozdeli cas ve formatu 00:00:00 na hodiny, minuty a sekundy a vytvori se z nej casove razitko funkci mktime. Casove razitko se vytvori i z aktualniho casu - interval v sekundach. Tyto casy se pak porovnaji a pokud je soucasny nizsi nez ukladaci, vraci se true.
 	 */
 	public function checkTime($url, $typ) {
-		global $db;
 
 		if(($id = self::AccessbyURL($url)) !== false) {
-			list($access) = $db->fetch_array("select second from __tmp_access where ID=".$id);
+			list($access) = DB::query("select second from __tmp_access where ID=".$id)->fetchSingle();
 
 			if($typ==self::TYPE_DB) {
-				list($content) = $db->fetch_array("select time from __tmp_content where url='".$url."' and lang='".$_COOKIE["lang"]."'");
+				$content = DB::query("select time from __tmp_content where url=%s and lang=%s", $url, $_COOKIE['lang'])->fetchSingle();
 			} else if($typ==self::TYPE_FILE) {
 				$file = self::getFileName($url);
-				if(is_readable($file))
-					$content = filemtime($file);
-			}
 
-			//echo "select time from __tmp_content where url='".$url."' and lang='".$_COOKIE["lang"]."'";
+				if(is_readable($file)) {
+					$content = filemtime($file);
+				}
+			}
 
 			$access = ($access<self::MIN_INTERVAL) ? self::MIN_INTERVAL : $access;
 			$access = ($access<self::MAX_INTERVAL or self::MAX_INTERVAL==0) ? $access : self::MAX_INTERVAL;
@@ -119,8 +118,6 @@ class TMP {
 	 * @return integer ID opravneni (accessu)
 	 */
 	public function AccessByURL($url) {
-		global $db;
-
 		$parts = removeEmptyFields(explode("/", $url));
 		$options = array();
 
@@ -131,9 +128,9 @@ class TMP {
 			rsort($options);
 
 			foreach($options as $url) {
-				$access = $db->query("select ID from __tmp_access where url like '".mysql_real_escape_string($url)."'");
-				while(list($id, $url) = $db->fetch_array($access)) {
-					return $id;
+				$access = DB::query("select ID from __tmp_access where url like %s", $url);
+				foreach($access->getIterator() as $row) {
+					return $row['ID'];
 				}
 			}
 		}
@@ -152,7 +149,7 @@ class TMP {
 	 * vraci obsah docasne stranky ze souboru
 	 */
 	public function getFile($url) {
-		if(self::AccessbyURL($url) !== false) {
+		if(self::AccessByURL($url) !== false) {
 			$file = self::getFileName($url);
 
 			if(is_readable($file))
@@ -167,7 +164,7 @@ class TMP {
 	public function setFile($url, $content) {
 		self::__construct();
 
-		if(self::AccessbyURL($url) !== false) {
+		if(self::AccessByURL($url) !== false) {
 			$file = self::getFileName($url);
 
 			if(is_writable($file) or !file_exists($file)) {
@@ -184,7 +181,7 @@ class TMP {
 	 * maze docasny soubor
 	 */
 	public function removeFile($url) {
-		if(self::AccessbyURL($url) !== false) {
+		if(self::AccessByURL($url) !== false) {
 			$file = self::TMP_DIR.md5($url);
 			if(is_writable($file)) {
 				if(unlink($file))
@@ -199,10 +196,8 @@ class TMP {
 	 * vraci obsah docasneho souboru z db
 	 */
 	public function getContent($url) {
-		global $db;
-
 		if(self::AccessbyURL($url) !== false) {
-			list($content) = $db->fetch_array("select content from __tmp_content where url='".$url."' and lang='".$_COOKIE["lang"]."'");
+			$content = DB::query("select content from __tmp_content where url=%s and lang=%s", $url, $_COOKIE['lang'])->fetchSingle();
 			return $content;
 		}
 
@@ -213,12 +208,19 @@ class TMP {
 	 * nastavuje obsah docasneho souboru v db
 	 */
 	public function setContent($url, $content) {
-		global $db;
-
 		if(($id = self::AccessbyURL($url)) !== false) {
 			self::removeContent($url);
-			if($db->query("insert into __tmp_content (id_access, content, time, lang, url) values ('".$id."', '".mysql_real_escape_string($content)."', NOW(), '".$_COOKIE["lang"]."', '".$url."')"))
-				return true;
+
+			$parametry = array(
+				'id_access' => $id,
+				'content' => $content,
+				'time' => date('Y-m-d G:i:s'),
+				'lang' => $_COOKIE['lang'],
+				'url' => $url,
+			);
+
+			DB::query("insert into __tmp_content", $parametry);
+			return true;
 		}
 
 		return false;
@@ -228,11 +230,9 @@ class TMP {
 	 * odebira docasny soubor z db.
 	 */
 	public function removeContent($url) {
-		global $db;
-
 		if(($id = self::AccessbyURL($url)) !== false) {
-			if($db->query("delete from __tmp_content where url='".$url."' and lang='".$_COOKIE["lang"]."'"))
-				return true;
+			DB::query("delete from __tmp_content where url=%s and lang=%s", $url, $_COOKIE['lang']);
+			return true;
 		}
 
 		return false;
@@ -243,24 +243,14 @@ class TMP {
 	 * vytvari nove povoleni pro vytvareni docasneho souboru
 	 */
 	public function createAccess($url, $interval) {
-		global $db;
-
-		if($db->query("insert into __tmp_access (url, second) values ('".$url."', '".$second."')"))
-			return true;
-
-		return false;
+		DB::query("insert into __tmp_access", array('url'=>$url, 'second'=>$second));
 	}
 
 	/**
 	 * maze povoleni pro vytvareni docasneho souboru a s nim i vsechny docasne soubory.
 	 */
 	public function removeAccess($url) {
-		global $db;
-
-		if($db->query("delete from __tmp_access where url='".$url."'"))
-			return true;
-
-		return false;
+		DB::query("delete from __tmp_access where url=%s", $url);
 	}
 
 	/**
@@ -275,12 +265,8 @@ class TMP {
 	 * zkontroluje, zda je povoleno nacitat docasny soubor. Vraci bud typ (db, file), nebo false.
 	 */
 	public function checkAccess($url) {
-		global $db;
-
 		if(($id = self::AccessbyURL($url)) !== false) {
-			list($typ) = $db->fetch_array("select type from __tmp_access where ID='".$id."'");
-
-			return $typ;
+			return DB::query("select type from __tmp_access where ID=%i", $id)->fetchSingle();
 		}
 
 		return false;

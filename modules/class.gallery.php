@@ -13,7 +13,7 @@ class Thumb extends Data {
 			self::notAllowed();
 		} else {
 			if(!$this->getFilePath(md5($src.$width.$height))) {
-				$size = getImageSize($src);
+				$size = getimagesize($src);
 
 				// size[0] = width
 				// size[1] = height
@@ -86,99 +86,29 @@ class Thumb extends Data {
 	}
 }
 
+abstract class Gallery extends Data {
+	static $design;
 
-final class Gallery extends Data {
+	static $allowed_types = array('image/png'=>'.png', 'image/jpeg'=>'.jpg', 'image/pjpeg'=>'.jpg', 'image/jpg'=>'.jpg', 'image/pjpg'=>'.jpg');
+	static $max_size = 524288; # in bytes // 512 kB
+
 	const PATH = 'gallery/';
 	const PAGE_PREFIX = 'gallery-';
+
 
 	public function __construct() {
 		global $vzhled;
 		if($vzhled!="") {
-			$this->design = $vzhled->design('gallery');
+			self::$design = $vzhled->design('gallery');
 		}
 
 		$this->setPath(self::PATH);
 	}
 
-	public function htmlMenuCategories() {
-		$out = '';
-		$list = $this->readDir(parent::VIEW_DIRS, '.','..','.svn','.htaccess');
-
-		foreach($list as $item) {
-			$description = Page::load(self::PAGE_PREFIX.$item);
-
-			$out .= '<li><a href='.URL::create('gallery', $item).'>'.(($description!='') ? $description['name'] : $item).'</a></li>';
-		}
-		return $out;
-	}
-
-	private function viewNoCategory() {
-		$page = new Page;
-		return $page->view('gallery');
-	}
-
-	private function viewPhoto($photo, $galerie) {
-		list($name, ) = explode('.', strtr($photo, '-_', '  '), 2);
-
-		return design(
-			$this->design['photo'],
-			array(
-				'url'=>URL::create('gallery', 'thumb', $galerie, $photo, 500),
-				'name'=>$name,
-				'id'=>md5($photo.$galerie),
-			)
-		);
-	}
-
-	private function viewCategory($galerie) {
-		$this->setPath(self::PATH.$galerie.'/');
-		$description = Page::load(self::PAGE_PREFIX.$galerie);
-		$photos = $this->readDir(parent::VIEW_FILES);
-
-		$html_photos = '';
-		foreach($photos as $img) {
-			//$path = $this->getFilePath($img, false);
-			$html_photos .= design(
-				$this->design['thumb'],
-				array(
-					'thumb'=>URL::create('gallery', 'thumb', $galerie, $img, 150),
-					'alt'=>$img,
-					'url'=>URL::create('gallery', $galerie, $img),
-					'height'=>50
-				)
-			);
-		}
-
-		return design(
-			$this->design['main'],
-			array(
-				'category' => ($description!='') ? $description['name'] : $galerie,
-				'cdescription' => $description['description'],
-				'photos' => $html_photos,
-			)
-		);
-	}
-
-	public function view($galerie, $photo='') {
-		$args = func_get_args();
-
-		if(ereg(';', $galerie)) {
-			$args = explode(';', $galerie);
-
-			if($args[0]=='RANDOMPHOTOS') {
-				return $this->viewRandomPhotos($args[1], $args[2]);
-			};
-		}
-
-		if($galerie=='thumb') {
-			return $this->thumb($args[1], $args[2], $args[3], $args[4]);
-		} else if($galerie==NULL) {
-			return $this->viewNoCategory();
-		} else if($photo==NULL) {
-			return $this->viewCategory($galerie);
-		} else if($photo!=NULL) {
-			return $this->viewPhoto($photo, $galerie);
-		}
+	protected function getName($photo) {
+		$ex = explode('.', strtr($photo, '-_', '  '));
+		unset($ex[count($ex)-1]);
+		return implode('.', $ex);
 	}
 
 	public function thumb($galerie, $file, $width, $height=NULL) {
@@ -188,19 +118,224 @@ final class Gallery extends Data {
 		$thumb = new Thumb;
 		return $thumb->view($path, $width, $height);
 	}
+}
 
-	public function viewRandomPhotos($galerie, $count) {
+/**
+ *
+ */
+final class GalleryAdmin extends Gallery {
+	public function remove($gallery) {
+		parent::setPath(parent::PATH);
+		if($_POST['delete']) {
+
+			if(!parent::removeDir($gallery)) {
+				return design(parent::$design['neuspechsmazani'], $page);
+			}
+
+		} else {
+			return design(parent::$design['potvrzenismazani'], $page);
+		}
+		return $gallery;
+	}
+
+
+	protected function categories() {
+		$out = '';
+		$list = parent::readDir(parent::VIEW_DIRS, '.','..','.svn','.htaccess');
+
+		foreach($list as $item) {
+			$description = PageView::load(self::PAGE_PREFIX.$item);
+
+			$out .= design(
+				self::$design['categories'],
+				array(
+					'thumb'=>URL::create('gallery', 'randomphoto', $item),
+					'urlview'=>URL::create('gallery', $item),
+					'urladmin'=>URL::create('admin', 'gallery', 'edit', $item),
+					'urlpage'=>URL::create('admin', 'page', 'edit', self::PAGE_PREFIX.$item),
+					'urlremove'=>URL::create('admin', 'gallery', 'remove', $item),
+					'name'=> ($description['name']!='') ? $description['name'] : $item,
+					'datetime'=> ($description['date']!='') ? $description['date'] : '0000-00-00 00:00:00',
+					'description'=> ($description['description']!='') ? $description['description'] : '<i>{LANG:gallery;44;popis nevytvoren}</i>',
+				)
+			);
+		}
+		return $out;
+	}
+
+	public function view() {
 		$out = '';
 
-		$this->setPath(self::PATH.$galerie.'/');
-		$photos = $this->readDir(parent::VIEW_FILES);
+		return GalleryAdmin::categories();
+
+		return design(parent::$design['admin'], array('content'=>$out));
+	}
+
+	public function edit($gallery) {
+		$out = '';
+
+		parent::setPath(parent::PATH.$gallery);
+		$list = parent::readDir(parent::VIEW_FILES, '.','..','.svn','.htaccess');
+
+		foreach($list as $key=>$image) {
+			$name = parent::getName($image);
+
+			$out .= design(
+				parent::$design['admin_image'],
+				array(
+					'id'=>$key,
+					'url'=>URL::create('gallery', 'thumb', $gallery, $image, 200),
+					'img'=>$image,
+					'name'=>$name,
+					'class'=>(ereg("\.", $name)) ? 'imghidden' : '',
+				)
+			);
+		}
+
+		return design(parent::$design['admin_images'], array('gallery'=>$gallery,'content'=>$out));
+	}
+
+	public function save($gallery) {
+		$out = '';
+		$this->setPath(parent::PATH.$gallery);
+
+		for($x=0; $_POST[$x.'_img']!=''; $x++) {
+
+			$name = $_POST[$x.'_name'];
+			$oldname = $_POST[$x.'_oldname'];
+			$img = $_POST[$x.'_img'];
+
+			if($name=='') {
+				if($this->removeFile($img)) {
+					$out .= sprintf(parent::$design['removedok'], $oldname);
+				} else {
+					$out .= sprintf(parent::$design['removedko'], $oldname);
+				}
+			} else if($name!=$oldname) {
+				if($this->renameFile($img, str_replace(' ', '-', $name).'.'.$this->getType($img))) {
+					$out .= sprintf(parent::$design['renamedok'], $oldname, $name);
+				} else {
+					$out .= sprintf(parent::$design['renamedko'], $oldname);
+				}
+			}
+
+		}
+
+		return sprintf(parent::$design['changes'], $out).$this->edit($gallery);
+	}
+}
+
+/**
+ *
+ */
+final class GalleryView extends Gallery {
+	private function noCategory() {
+		Page::__construct();
+		return PageView::view('gallery');
+	}
+
+	private function photo($photo, $galerie) {
+		$out = '';
+		$name = parent::getName($photo);
+
+		$out .= design(
+			parent::$design['photo'],
+			array(
+				'url'=>URL::create('gallery', 'thumb', $galerie, $photo, 500),
+				'name'=>$name,
+				'id'=>md5($photo.$galerie),
+				'photos' => GalleryView::photos($galerie),
+			)
+		);
+
+		return $out;
+	}
+
+	private function photos($galerie) {
+		parent::setPath(self::PATH.$galerie.'/');
+		$photos = parent::readDir(parent::VIEW_FILES);
+
+		$html_photos = '';
+
+		foreach($photos as $img) {
+			if(!ereg("\.", parent::getName($img))) {
+				//$path = $this->getFilePath($img, false);
+				$html_photos .= design(
+					parent::$design['thumb'],
+					array(
+						'thumb'=>URL::create('gallery', 'thumb', $galerie, $img, 150),
+						'alt'=>$img,
+						'url'=>URL::create('gallery', $galerie, $img),
+						'height'=>50
+					)
+				);
+			}
+		}
+
+		return $html_photos;
+	}
+
+	private function category($galerie) {
+		Page::__construct();
+		$description = PageView::load(self::PAGE_PREFIX.$galerie);
+
+		if(PageCategories::categoryExists($description['url'])) {
+			return PageCategories::view($description['url']);
+		} else {
+			return design(
+				parent::$design['main'],
+				array(
+					'category' => ($description!='') ? $description['name'] : $galerie,
+					'cdescription' => $description['description'],
+					'photos' => GalleryView::photos($galerie),
+				)
+			);
+		}
+	}
+
+	public function view($galerie, $photo='') {
+		$args = func_get_args();
+
+		if(ereg(';', $galerie)) {
+			$args = explode(';', $galerie);
+
+			if($args[0]=='RANDOMPHOTOS') {
+				return GalleryView::randomPhotos($args[1], $args[2]);
+			};
+		}
+
+		if($galerie=='thumb') {
+			return parent::thumb($args[1], $args[2], $args[3], $args[4]);
+		} else if($galerie==NULL) {
+			return GalleryView::noCategory();
+		} else if($photo==NULL) {
+			return GalleryView::category($galerie);
+		} else if($photo!=NULL) {
+			return GalleryView::photo($photo, $galerie);
+		}
+	}
+
+	public function randomPhoto($galerie) {
+		parent::setPath(self::PATH.$galerie.'/');
+		$photos = parent::readDir(parent::VIEW_FILES);
+		$rand = rand(0, count($photos)-1);
+
+		return Gallery::thumb($galerie, $photos[$rand], 400);
+	}
+
+
+	public function randomPhotos($galerie, $count) {
+		$out = '';
+
+		parent::setPath(self::PATH.$galerie.'/');
+		$photos = parent::readDir(parent::VIEW_FILES);
 
 		for($x=0;$x<$count and count($photos)>0;$x++) {
 			sort($photos);
 			$rand = rand(0, count($photos)-1);
 
 			$out .= design(
-				$this->design['thumb'],
+				parent::$design['thumb'],
 				array(
 					'thumb'=>URL::create('gallery', 'thumb', $galerie, $photos[$rand], 400),
 					'alt'=>$img,
@@ -209,10 +344,40 @@ final class Gallery extends Data {
 				)
 			);
 
-
 			unset($photos[$rand]);
 		}
 
 		return $out;
+	}
+
+	public function addphoto() {
+		if($_POST['name']!='') {
+			parent::setPath(parent::PATH.$_POST['kategorie']);
+
+			$name = str_replace(' ', '-', str_replace('.', ',', $_POST['name']));
+			$save = '';
+			if(parent::$allowed_types[$_FILES['file']['type']]!='') {
+				if($_FILES['file']['size']<parent::$max_size) {
+					if(parent::saveFile($_FILES['file']['tmp_name'], '.'.$name.parent::$allowed_types[$_FILES['file']['type']])) {
+						$save = parent::$design['saveok'];
+					}
+				}
+			}
+
+			if($save=='') {
+				$save = parent::$design['saveko'];
+			}
+		}
+
+		parent::setPath(parent::PATH);
+		$list = parent::readDir(parent::VIEW_DIRS, '.','..','.svn','.htaccess');
+
+		$html = '';
+		foreach($list as $category) {
+			$info = PageView::load(parent::PAGE_PREFIX.$category);
+			$html .= '<option value="'.$category.'/">'.(($info['name']!='') ? $info['name'] : $category).'</option>';
+		}
+
+		return $save.design(parent::$design['addphoto'], array('categories'=>$html, 'size'=>(parent::$max_size/1024)));
 	}
 }

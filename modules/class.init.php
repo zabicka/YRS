@@ -29,7 +29,7 @@ class Init {
 	 * @return boolean
 	 */
 	private function __construct() {
-		$this->trida = slovnik($_GET["class"]);
+		$this->trida = Dictionary::modul($_GET["class"]);
 		return true;
 	}
 
@@ -79,11 +79,11 @@ class Init {
 			if(Admin::isLogged()==false)
 				return true;
 
-			if(Admin::getAccess(adresa('', $action, '','','','','','', $ziskej=true)))
+			if(Admin::getAccess(URL::getAddress('', $action)))
 				return true;
 
 		} else {
-			if(Admin::getAccess(adresa('', $action, '','','','','','', $ziskej=true)))
+			if(Admin::getAccess(URL::getAddress('', $action)))
 				return true;
 		}
 
@@ -147,7 +147,7 @@ class Init {
 			// ziskani a odmazani prazdnych policek
 			$index = removeEmptyFields(explode("/", ACTION_ERROR404));
 			// pokud by tu tahle podminka nebyla, mohlo by se v pripade, ze error neexistuje, skript zacyklit.
-			if(class_exists(slovnik($index[0]))) {
+			if(class_exists(Dictionary::modul($index[0]))) {
 				// ziskani stranky
 				return $this->getClass($index[0], $index[1], $index[2], $index[3], $index[4], $index[5]);
 			} else {
@@ -213,20 +213,26 @@ class Init {
 
 		if(($html=TMP::getTMP($url))===false or $this->showtmp==false) {
 
+			$class_name = $class;
+			$class = (class_exists($class.'View')) ? $class.'View' : $class;
+
 			if(class_exists($class)) {
 				// vytvoreni nove tridy
 				$this->cre = new $class;
-				$akce = slovnik($action, false, '', $class);
+				$akce = Dictionary::modul($action, $class_name);
 
 				if($this->auth($akce)) {
 
 					// pokud je dodana nejaka metoda a tato metoda existuje
 					if($action!="" and method_exists($this->cre, self::PREFIX_METHODS.$akce)){
 						// ziskani html
+
 						$akce = self::PREFIX_METHODS.$akce;
 						$html = $this->cre->$akce($parametr1, $parametr2, $parametr3, $parametr4, $parametr5);
 
 					// pokud existuje defaultni metoda (metoda neni dodana, nebo neexistuje)
+					} else if($action!='' and method_exists($this->cre, $akce) and ereg('(.*)View', $class)) {
+						$html = $this->cre->$akce($parametr1, $parametr2, $parametr3, $parametr4, $parametr5);
 					} else if(method_exists($this->cre, ACTION_DEFAULT)) {
 						$def = ACTION_DEFAULT;
 
@@ -267,6 +273,9 @@ class Init {
 	 * @return boolean
 	 */
 	public function run() {
+		$this->showtmp = false;
+		$this->savetmp = false;
+
 		if($this->trida[0]=="_") {
 			session_register("only");
 
@@ -278,7 +287,7 @@ class Init {
 			$_GET["parametr2"]	=	$_GET["parametr3"];
 			$_GET["parametr3"]	=	$_GET["parametr4"];
 			$_GET["parametr4"]	=	$_GET["parametr5"];
-			$this->trida = slovnik($_GET["class"]);
+			$this->trida = Dictionary::modul($_GET["class"]);
 
 			switch ($special) {
 				case SPECIAL_VIEW_ONLY_CLASS:

@@ -85,6 +85,10 @@ function __autoload($jmeno_tridy) {
 		$jmeno_tridy = str_replace('Admin', '', $jmeno_tridy);
 	}
 
+	if(ereg('.(.*)View', $jmeno_tridy)) {
+		$jmeno_tridy = str_replace('View', '', $jmeno_tridy);
+	}
+
 	$cestaClass = CESTA_MODULY."/class.".strtolower($jmeno_tridy).".php";
 
 	if(is_file($cestaClass)) {
@@ -199,14 +203,23 @@ if(NETTE===true) {
 
 
 /// SPOJENI S DB ///
-$typ = DB;
+DB::connect(array(
+    'driver'   => DB,
+    'host'     => DB_SERVER,
+    'username' => DB_USER,
+    'password' => DB_PASSWORD,
+    'database' => DB_DB,
+    'charset'  => DB_KODOVANI,
+));
+
+/*$typ = DB;
 
 if($typ=='DB') {
 	// spusteni instalace
 	header("Location: install/install.php");
 	header("Connection: close");
 	exit;
-}
+}*/
 
 /**
  * Vytvoreni objektu pro spolupraci s databazi.
@@ -214,25 +227,25 @@ if($typ=='DB') {
  * @name $db
  * @global object $GLOBALS["db"]
  */
-
+/*
 $GLOBALS["db"] = new $typ;
 if(method_exists($db, "connect")) {
-	if($db->connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DB, DB_KODOVANI)==false) {
+	if($db->connect(, , , , )==false) {
 	//	instalace();
 
 		Chyby(1, "Nepodarilo se pripojit k DB. Typ databaze: ".$typ, "/index.php", 0);
 		exit;
 	}
-}
+}*/
 
 
 # Nacteni nastaveni
-if($settings = $db->query("select * from __settings where name!=''", "index.php")) {
-	while($radek = $db->fetch_array($settings)) {
+if($settings = DB::query("select * from __settings where name!=%s", "index.php")) {
+	foreach($settings->getIterator() as $row) {
 		/**
 		 * @ignore
 		 */
-		define(strtoupper($radek[name]), $radek[value]);
+		define(strtoupper($row[name]), $row[value]);
 	}
 } else {
 //	instalace();

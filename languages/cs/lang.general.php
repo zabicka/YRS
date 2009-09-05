@@ -1,6 +1,6 @@
 <?php
+$lang["admin"] = "Administrace :: "; 
 $lang["grafika"] = "Zobrazit s CSS"; 
-$lang["test"] = ""; 
 $lang["tisk"] = "Tisknout stránku"; 
 $lang[1] = "Vyhledávání a hledání"; 
 $lang[2] = "Administrace"; 

@@ -1,11 +1,11 @@
 <?php
 class Comments {
 	/** promenna pro styly */
-	private $design;
+	static $design;
 
-	public $allowed_tags = array("b", "i", "a");
+	static $allowed_tags = array("b", "i", "a");
 
-	private $id = 0;
+	static $id = 0;
 
 	static $exists = 0;
 
@@ -74,25 +74,24 @@ class Comments {
 	 * );
 	 * </code>
 	 *
+	 * @todo Je to hotovy? Nikde to nevidim aplikovane...
 	 */
-	private $bygroups = array('' =>'');
+	static $bygroups = array('' =>'');
 
 	function __construct() {
 		global $vzhled;
 
 		if($vzhled!="") {
-			$this->design = $vzhled->design("comments");
+			self::$design = $vzhled->design("comments");
 		}
 
 		return true;
 	}
 
 
-	public function textToTexy($text) {
+	protected function textToTexy($text) {
 		// zkusime Texy?
 		$texy = new Texy;
-
-
 
 		TexyConfigurator::safeMode($texy);
 
@@ -136,16 +135,6 @@ class Comments {
 		return true;
 	}
 
-	/**
-	 * nahrazeno TeXy! {@link Comments::textToTexy()}
-	 */
-	private function ToHTML($string, $what) {
-		foreach($what as $ex) {
-			$string = str_replace("[".$ex."]", "<".$ex.">", $string);
-			$string = str_replace("[/".$ex."]", "</".$ex.">", $string);
-		}
-		return $string;
-	}
 
 	/**
 	 * Funkce pro pridani noveho komentare.
@@ -168,27 +157,29 @@ class Comments {
 	 *
 	 */
 	private function addComment($user, $subject, $text, $group,$parent=0) {
-		global $db;
-
-		$group = mysql_real_escape_string($group);
-		$id = (int) $id;
-		$parent = (int) $parent;
-
 		// prevod ip na cislo
 		$ip = ip2long(getIP());
 
 		// odstraneni html a prevedeni diky Texy!
-		$text = mysql_real_escape_string(self::textToTexy($text));
+		$text = self::textToTexy($text);
 
 		// zkraceni titulku
-		$subject = mysql_real_escape_string(substr(htmlspecialchars($subject), 0, self::SUBJECT_MAX_LENGHT));
+		$subject = substr(htmlspecialchars($subject), 0, self::SUBJECT_MAX_LENGHT);
 
 		// kontrola zda text neni prazdny
-		if($text!="") {
+		if($text) {
 			// pokud je dodano ID uzivatele
 			if(is_numeric($user)) {
 				// ziskani informaci uzivatele
-				list($fname, $lname, $mail, $web) = Admin::getUserInfo($user, array(ADMIN_INFO_FIRST_NAME, ADMIN_INFO_LAST_NAME, ADMIN_INFO_EMAIL, ADMIN_INFO_WEB));
+				list($fname, $lname, $mail, $web) = Admin::getUserInfo(
+					$user,
+					array(
+						ADMIN_INFO_FIRST_NAME,
+						ADMIN_INFO_LAST_NAME,
+						ADMIN_INFO_EMAIL,
+						ADMIN_INFO_WEB
+					)
+				);
 
 				// vytvoreni jmena
 				$name = $fname." ".$lname;
@@ -219,20 +210,31 @@ class Comments {
 				return 3;
 			}
 
-			$query_duplicity = "select count(*) from __comments_list where id_group='".$group."' and ip='".$ip."' and text='".$text."'";
-
-			$query_insert = "insert into __comments_list (id_group, id_user, name, mail, web, ip, subject, text, date, parent) values ('".$group."', '".$id."', '".$name."', '".$mail."', '".$web."', '".$ip."', '".$subject."', '".$text."', NOW(), '".$parent."')";
+			$attrs = array(
+				'id_group' => $group,
+				'id_user' => $id,
+				'name' => $name,
+				'mail' => $mail,
+				'web' => $web,
+				'ip' => $ip,
+				'subject' => $subject,
+				'text' => $text,
+				'date' => date('Y-m-d G:i:s'),
+				'parent' => $parent,
+			);
 
 			// zjisteni duplicity
-			list($pocet) = $db->fetch_array($query_duplicity);
+			$pocet = (int) DB::select('count(*)')
+							->from('__comments_list')
+							->where('id_group = %s', $group)
+							->and('ip = %i', $ip)
+							->and('text = %s', $text)
+							->execute()->fetchSingle();
 
 			if($pocet==0) {
 				// vlozeni komentare
-				if($db->query($query_insert)) {
-					return true;
-				} else {
-					return 4;
-				}
+				DB::query('insert into __comments_list', $attrs);
+				return true;
 			} else {
 				return 5;
 			}
@@ -252,10 +254,8 @@ class Comments {
 	 * @return integer uroven komentare
 	 */
 	public function getLevel($id, $level=0) {
-		global $db;
-
 		// nacteni id rodice
-		list($parent) = $db->fetch_array("select parent from __comments_list where ID='".$id."'");
+		$parent = DB::query("select parent from __comments_list where ID=%i", $id)->fetchSingle();
 
 		// pokud rodic neni nulovy
 		if($parent!=0) {
@@ -265,7 +265,9 @@ class Comments {
 
 		return $level;
 	}
+}
 
+class CommentsView extends Comments {
 	/**
 	 * ziskava seznam komentaru pro danou skupinu. Vraci strukturu s podkomentari
 	 *
@@ -316,26 +318,34 @@ class Comments {
 	 *
 	 */
 	private function getComments($group) {
-		global $db;
-
 		// pole pro vraceni, uklada se se strukturou
 		$comments = array();
 		// pole, ktere de facto pouze ukazuje na jednotlive komentare v $comments
 		$wos = array();
 
 		// nacteni polozek z db
-		$list = $db->query("select * from __comments_list where id_group='".mysql_real_escape_string($group)."'");
+		$list = DB::query("select * from __comments_list where id_group=%s", $group);
 
 		// prochazeni ziskanymi polozkami
-		while($c = $db->fetch_array($list)) {
+		foreach($list->getIterator() as $c) {
 			if(self::ALWAYS_UPDATE_USERS==true and $c['id_user']!=0) {
-				list($fname, $lname, $c['mail'], $c['web'], $c['signature']) = Admin::getUserInfo($c['id_user'], array(ADMIN_INFO_FIRST_NAME, ADMIN_INFO_LAST_NAME, ADMIN_INFO_EMAIL, ADMIN_INFO_WEB, ADMIN_INFO_SIGNATURE));
+
+				list($fname, $lname, $c['mail'], $c['web'], $c['signature']) = Admin::getUserInfo(
+					$c['id_user'],
+					array(
+						ADMIN_INFO_FIRST_NAME,
+						ADMIN_INFO_LAST_NAME,
+						ADMIN_INFO_EMAIL,
+						ADMIN_INFO_WEB,
+						ADMIN_INFO_SIGNATURE
+					)
+				);
 
 				// vytvoreni jmena
 				$c['name'] = $fname." ".$lname;
 
 				// pridani podpisu
-				$c['text'] .= design($this->design["signature"], array("text"=>$c['signature']));
+				$c['text'] .= design(parent::$design["signature"], array("text"=>$c['signature']));
 			}
 
 
@@ -373,16 +383,21 @@ class Comments {
 		$comment["own"]["count"] = $count;
 		$comment["own"]["photo"] = getGravatarLink($comment["own"]["mail"], 50);
 
-	//	if($_GET['class']!=rslovnik('comments')) {
-		if(slovnik($_GET['class'])=='comments') {
-			$comment["own"]["urlreply"] = URL::create("comments", "r".$comment["own"]["ID"] , rslovnik($_GET["class"]))."#newcomment";
+		if(Dictionary::modul($_GET['class'])=='comments') {
+			$comment["own"]["urlreply"] = URL::create(
+				"comments",
+				"r".$comment["own"]["ID"],
+				Dictionary::translation($_GET["class"])
+			)."#newcomment";
 		} else {
-			$comment["own"]["urlreply"] = URL::create("comments", "r".$comment["own"]["ID"] , rslovnik($_GET["class"]), $_GET["akce"], $_GET["parametr1"])."#newcomment";
+			$comment["own"]["urlreply"] = URL::create(
+				"comments",
+				"r".$comment["own"]["ID"] ,
+				Dictionary::translation($_GET["class"]),
+				$_GET["akce"],
+				$_GET["parametr1"]
+			)."#newcomment";
 		}
-	/*	} else {
-			$comment["own"]["urlreply"] = URL::create("comments", "r".$comment["own"]["ID"])."#newcomment";
-		} */
-
 
 		if(is_array($comment["children"])) {
 			foreach($comment["children"] as $key=>$kind) {
@@ -399,7 +414,7 @@ class Comments {
 
 		}
 
-		$out .= design($this->design["comment"], $comment["own"]);
+		$out .= design(parent::$design["comment"], $comment["own"]);
 
 		return array($out, $count);
 	}
@@ -407,14 +422,15 @@ class Comments {
 	/**
 	 * funkce zobrazujici vypis komentaru. Da se omezit pocet.
 	 */
-	public function viewComments($group, $from=0, $to=NULL) {
+	public function comments($group, $from=0, $to=NULL) {
+		$out = '';
 		$comments = self::getComments($group);
-		$out = "";
 
 		$to = ($to==NULL) ? NULL : $from+$to;
 
 		$i = 0;
 		$ai = 0;
+
 		foreach($comments as $key=>$comment) {
 			if(self::TYPE_SHOW_COMMENTS=="structure") {
 				list($tmp, $ai) = $this->htmlStructureComments($comment, $ai+1);
@@ -430,7 +446,7 @@ class Comments {
 	}
 
 
-	public function viewNewComment($group, $parent=0) {
+	public function newComment($group, $parent=0) {
 		if(ereg("r(.*)", self::$parametr)) {
 			$parent = (int) substr(self::$parametr, 1);
 		}
@@ -451,8 +467,6 @@ class Comments {
 			$values["name"] = $fname." ".$lname;
 			$values["mail"] = $mail;
 			$values["web"] = $web;
-
-
 		}
 
 		if($_POST["group"]==$group and Admin::isLogged()==false) {
@@ -476,24 +490,37 @@ class Comments {
 			} else {
 
 				if($user["ID"]=="") {
-					$error=$this->addComment(array($values["name"], $values["mail"], $values["web"]), $values["subject"], $values["text"], $group, $parent);
+					$error = $this->addComment(
+						array(
+							$values["name"],
+							$values["mail"],
+							$values["web"]
+						),
+						$values["subject"],
+						$values["text"],
+						$group,
+						$parent
+					);
 				} else {
-					$error=$this->addComment($user["ID"], $values["subject"], $values["text"], $group, $parent);
+					$error = $this->addComment(
+						$user["ID"],
+						$values["subject"],
+						$values["text"],
+						$group,
+						$parent
+					);
 				}
 
 				if($error===true) {
-
-					$error = sprintf($this->design["insert_ok"], Lang::view("COMMENTS;newok;Komentar pridan"));
+					$error = sprintf(parent::$design["insert_ok"], Lang::view("COMMENTS;newok;Komentar pridan"));
 					$values["subject"] = NULL;
 					$values["text"] = NULL;
 					$parent = 0;
-
 				} else {
-					$error = sprintf($this->design["insert_ko"], Lang::view("COMMENTS;chins".$error.";Komentar se nepodarilo ulozit"));
+					$error = sprintf(parent::$design["insert_ko"], Lang::view("COMMENTS;chins".$error.";Komentar se nepodarilo ulozit"));
 				}
 			}
 		}
-
 
 		$values["name"] = ($values["name"]=="") ? $_COOKIE["comment_name"] : $values["name"];
 		$values["mail"] = ($values["mail"]=="") ? $_COOKIE["comment_mail"] : $values["mail"];
@@ -502,7 +529,7 @@ class Comments {
 		$reakce = ($parent!=0) ? "(".sprintf(Lang::view("COMMENTS;reply;#%s"),$parent).")" : "";
 
 		return design(
-			$this->design["new_comment"],
+			parent::$design["new_comment"],
 			array(
 				"logged"=>((Admin::isLogged()!=false) ? "" : "style='display: none;'"),
 				"id"=>((Admin::isLogged()!=false) ? $user["ID"] : ""),
@@ -522,17 +549,14 @@ class Comments {
 	}
 
 	public function view() {
-		global $vzhled;
-
 		$args = func_get_args();
-
 
 		if($args[0] and $args[2]) {
 			if(!self::$parametr) {
 				self::$parametr		=	$args[0];
 
-				$_GET["class"]		=	slovnik($args[1]);
-				$_GET["akce"]		=	slovnik($args[2], false, $args[1]);
+				$_GET["class"]		=	Dictionary::modul($args[1]);
+				$_GET["akce"]		=	Dictionary::modul($args[2], false, $args[1]);
 				$_GET["parametr1"]	=	$args[3];
 				$_GET["parametr2"]	=	$args[4];
 			}
@@ -543,31 +567,20 @@ class Comments {
 
 			return $ni->getClass();
 		} else {
-			if($args[0] and !self::$parametr) {
-				self::$parametr	= $args[0];
+			if($args[0] and !parent::$parametr) {
+				parent::$parametr = $args[0];
 			}
 
 			# zobrazeni defaultni stranky
 			$out = '';
 
-			$out .= self::viewNewComment(self::GROUP_DEFAULT);
-			$out .= self::viewComments(self::GROUP_DEFAULT);
+			$out .= self::newComment(parent::GROUP_DEFAULT);
+			$out .= self::comments(parent::GROUP_DEFAULT);
 
 			return $out;
 		}
 	}
 }
-
-
-// Comments::addComment(array("THCO", "thco@seznam.cz", "http://saspi.cz"), "Titulek", "Obsah sdeleni", 1);
-// Comments::addComment(1, "Titulek", "Obsah sdeleni", 2);
-
-// Comments::getComments(1);
-//echo Comments::etLevel(10);
-
-//$nc = new Comments;
-//echo $nc->viewComments(1, 0, 3);
-
 ?>
 
 

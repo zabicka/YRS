@@ -4,13 +4,15 @@ define('PAGE_INDEX', 'index');
 define('PAGE_ERROR404', 'error404');
 define('PAGE_ERROR403', 'error403');
 
-class PageAdmin {
+abstract class Page {
 	static $design;
 
 	public function __construct() {
 		global $vzhled;
 
 		if ($vzhled) {
+			Template::$title[] = Lang::view('page;title;Pages');
+
 			self::$design = $vzhled->design('page');
 			return true;
 		}
@@ -18,13 +20,82 @@ class PageAdmin {
 		return false;
 	}
 
-	public function edit($url) {
-		global $db;
+	public function view() {
+		Page::__construct();
+		list($a,$b,$c,$d) = func_get_args();
+		return PageView::view($a,$b,$c,$d);
+	}
+}
 
-		$page = $db->fetch_array('select * from __page_pages where url="'.$url.'" and lang="'.$_COOKIE['lang'].'"');
+class PageCategories extends Page {
+
+	public function categoryExists($url) {
+		$page = PageView::load($url);
+
+		$sql = DB::query('select count(ID) as ex from __page_pages where category="'.$page['name'].'"')->fetchSingle();
+
+		return ($sql[ex]) ? true : false;
+	}
+
+	protected function loadPages($category) {
+		$ret = array();
+
+		$query = DB::query("select name, url, description, DATE_FORMAT(date, '%d.%m.%Y') as datetime
+ from __page_pages where category='".$category."' and lang='".$_COOKIE['lang']."' order by date desc, name");
+
+		foreach($query->getIterator() as $page) {
+			$ret[] = $page;
+		}
+
+		return $ret;
+	}
+
+	public function viewList($category) {
+		$out = "";
+		$list = PageCategories::loadPages($category);
+
+		foreach($list as $page) {
+			$to = 'page';
+			if(PageCategories::categoryExists($page['url'])) {
+				$to = 'categories';
+			} else if(ereg(Gallery::PAGE_PREFIX, $page['url'])) {
+				$to = 'gallery';
+				$page['url'] = str_replace(Gallery::PAGE_PREFIX, '', $page['url']);
+			}
+			$page['url'] = URL::create($to, $page['url']);
+
+			$out .= design(parent::$design['category_list_pages'], $page);
+		}
+		return $out;
+	}
+
+	public function view() {
+		$out = '';
+		list($url, $from, $howmany) = func_get_args();
+
+		$page = PageView::load($url);
+
+		Template::$title[] = $page['name'];
+
+		if($page) {
+			$out .= PageView::render($page);
+			$out .= PageCategories::viewList($page['name']);
+		} else {
+			$out = PageView::view(PAGE_ERROR404);
+		}
+
+		return $out;
+	}
+}
+
+class PageAdmin extends Page  {
+	static $design;
+
+	public function edit($url) {
+		list($page) = DB::query('select * from __page_pages where url="'.$url.'" and lang="'.$_COOKIE['lang'].'" limit 1')->fetchAll();
 
 		return design(
-			self::$design['edit'],
+			parent::$design['edit'],
 			array(
 				'url' => $url,
 				'id' => $page['ID'],
@@ -39,39 +110,53 @@ class PageAdmin {
 	}
 
 	private function listCategories() {
-		global $db;
-
 		$ret = '';
-		$load = $db->query('select category from __page_pages group by category');
 
-		while(list($category) = $db->fetch_array($load)) {
+		$load = DB::query('select category from __page_pages group by category');
+
+		foreach($load->getIterator() as $row) {
+			$category = $row['category'];
 			if($category) {
-				$ret .= sprintf(self::$design['licategory'], $category, $category);
+				$ret .= sprintf(parent::$design['licategory'], $category, $category);
 			}
 		}
 
 		return $ret;
 	}
 
-	public function save($url) {
-		global $db;
+	public function delete($url) {
+		$page = PageView::load($url);
 
+		if($page) {
+			if($_POST['delete']) {
+				DB::query('delete from __page_pages where url=%s', $url);
+			} else {
+				return design(parent::$design['potvrzenismazani'], $page);
+			}
+		}
+
+		header("HTTP/1.1 301 Moved Permanently");
+		header("Location: ".URL::create('admin','page'));
+		header("Connection: close");
+	}
+
+	public function save($url) {
 		$ret = '';
 
-		$name = mysql_real_escape_string($_POST["name"]);
-		$description = mysql_real_escape_string($_POST["description"]);
-		$content = mysql_real_escape_string($_POST["content"]);
-		$category = mysql_real_escape_string($_POST["category"]);
+		PageAdmin::newpage();
+
+		if($_POST["name"]=='') return design(parent::$design['neulozeno'], array('page'=>$url));
+
 
 		if(ereg('([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})', $_POST["date"])) {
 			$date = $_POST["date"];
+		} else {
+			$date = date('Y-m-d G:i:s');
 		}
 
-		if($db->query('update __page_pages set name="'.$name.'", description="'.$description.'", content="'.$content.'", category="'.$category.'", date="'.$date.'" where url="'.$url.'" and lang="'.$_COOKIE['lang'].'"')) {
-			$ret .= design(self::$design['ulozeno'], array('page'=>$url));
-		} else {
-			$ret .= design(self::$design['neulozeno'], array('page'=>$url));
-		}
+		$query = DB::query('update __page_pages set name=%s, description=%s, content=%s, category=%s, date=%t where url=%s and lang=%s', $_POST["name"], $_POST["description"], $_POST["content"], $_POST["category"], $date, $url, $_COOKIE['lang']);
+
+		$ret .= design(parent::$design['ulozeno'], array('page'=>$url));
 
 		$ret .= PageAdmin::edit($url);
 
@@ -79,15 +164,13 @@ class PageAdmin {
 	}
 
 	public function newpage() {
-		global $db;
-
 		$name = $_POST['url'];
 		$url = goodurl($_POST['url']);
 
-		list($load) = $db->fetch_array('select count(ID) from __page_pages where url="'.$url.'" and lang="'.$_COOKIE['lang'].'"');
+		list($load) = DB::query('select count(ID) from __page_pages where url=%s and lang=%s', $url, $_COOKIE['lang'])->fetchSingle();
 
 		if(!$load) {
-			$db->query('insert into __page_pages (name, url, lang, date) values ("'.$name.'", "'.$url.'", "'.$_COOKIE['lang'].'", NOW())');
+			DB::query('insert into __page_pages (name, url, lang, date) values ("'.$name.'", "'.$url.'", "'.$_COOKIE['lang'].'", NOW())');
 
 		}
 
@@ -96,7 +179,7 @@ class PageAdmin {
 
 	public function view() {
 		// pridani formulare pro novou stranku
-		$ret .= design(self::$design["cnewpage"], array("hlaska"=>$zobraz));
+		$ret .= design(parent::$design["cnewpage"], array("hlaska"=>$zobraz));
 
 		// nacteni seznamu stranek
 		$ret .= $this->listPages();
@@ -104,25 +187,23 @@ class PageAdmin {
 	}
 
 	private function listPages() {
-		global $db;
-
 		$ret = '';
 		$category = '';
 
 		// nacteni vsech stranek a serazeni podle ID
-		$load = $db->query('select * from __page_pages where lang="'.$_COOKIE['lang'].'" order by category');
+		$load = DB::query('select * from __page_pages where lang="'.$_COOKIE['lang'].'" order by category');
 
 		// prochazeni strankami
 		$x = 0;
-		while($page = $db->fetch_array($load)) {
+		foreach($load->getIterator() as $page) {
 			if($category != $page['category']) {
-				$ret .= design(self::$design['list_category'], array('category'=>$page['category']));
+				$ret .= design(parent::$design['list_category'], array('category'=>$page['category']));
 				$category = $page['category'];
 			}
 
 			// pridani do tabulky
 			$ret .= design(
-				self::$design['listpagesrow'],
+				parent::$design['listpagesrow'],
 				array(
 					'id' => $page['ID'],
 					'styl' => ($x%2) ? '' : 'even',
@@ -136,32 +217,49 @@ class PageAdmin {
 
 			$x++;
 		}
-
 		// zkompletovani tabulky
-		$ret = sprintf(self::$design['listpagestable'], $ret);
+		$ret = sprintf(parent::$design['listpagestable'], $ret);
 
 		// vraceni tabulky se seznamem
 		return $ret;
 	}
 }
 
-class Page {
-	static $design;
+/**
+ * User handler for images
+ *
+ * @param TexyHandlerInvocation  handler invocation
+ * @param TexyImage
+ * @param TexyLink
+ * @return TexyHtml|string|FALSE
+ */
+function imageHandler($invocation, $image, $link)
+{
+	$parts = explode(':', $image->URL);
+	if (count($parts) !== 2) return $invocation->proceed();
 
-	public function __construct() {
-		global $vzhled;
+	switch ($parts[0]) {
+	case 'youtube':
+		$video = htmlSpecialChars($parts[1]);
+		$dimensions = 'width="'.($image->width ? $image->width : 425).'" height="'.($image->height ? $image->height : 350).'"';
+		$code = '<div><object '.$dimensions.'>'
+			. '<param name="movie" value="http://www.youtube.com/v/'.$video.'" /><param name="wmode" value="transparent" />'
+			. '<embed src="http://www.youtube.com/v/'.$video.'" type="application/x-shockwave-flash" wmode="transparent" '.$dimensions.' /></object></div>';
 
-		if ($vzhled) {
-			self::$design = $vzhled->design('page');
-			return true;
-		}
-
-		return false;
+		$texy = $invocation->getTexy();
+		return $texy->protect($code, Texy::CONTENT_BLOCK);
 	}
+
+	return $invocation->proceed();
+}
+
+class PageView extends Page  {
+	static $design;
 
 	public function formateText($text) {
 		if(class_exists('Texy')) {
 			$texy = new Texy;
+			$texy->addHandler('image', 'imageHandler');
 			return $texy->process($text);
 		} else {
 			return $text;
@@ -169,40 +267,52 @@ class Page {
 	}
 
 	public function load($url) {
-		global $db;
+		list($load) = DB::query("select * from __page_pages where url=%s and lang=%s limit 1", $url, $_COOKIE['lang'])->fetchAll();
 
-		$load = $db->fetch_array('select * from __page_pages where url="'.$url.'" and lang="'.$_COOKIE['lang'].'" limit 1');
 		return $load;
 	}
 
 	public function render($data) {
 		return design(
-			self::$design['stranka'],
+			parent::$design['stranka'],
 			array(
 				'h1' => $data['name'],
-				'description' => Page::formateText($data['description']),
+				'description' => PageView::formateText($data['description']),
 				'url' => $data['url'],
-				'content' =>  Page::formateText($data['content'])
+				'content' =>  PageView::formateText($data['content'])
 			)
 		);
 	}
 
 	public function view() {
 		$args = func_get_args();
-		$url = sslovnik($args[0], 'page');
+		$url = Dictionary::modul($args[0], 'page');
 
 		if($url) {
-			$page = Page::load($url);
+			if(PageCategories::categoryExists($url)) {
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: ".URL::create('categories', $url));
+				header("Connection: close");
+			}
+
+			if(ereg(Gallery::PAGE_PREFIX, $url)) {
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: ".URL::create('gallery', str_replace(Gallery::PAGE_PREFIX, '', $url)));
+				header("Connection: close");
+			}
+
+			$page = PageView::load($url);
 
 			if(!$page) {
-				$page = Page::load(PAGE_ERROR404);
+				$page = PageView::load(PAGE_ERROR404);
 			}
 
 		} else {
-			$page = Page::load(PAGE_INDEX);
+			$page = PageView::load(PAGE_INDEX);
 		}
 
-		return Page::render($page);
+		Template::$title[] = $page['name'];
+		return PageView::render($page);
 	}
 
 }

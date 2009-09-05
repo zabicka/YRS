@@ -125,6 +125,10 @@ class Lang {
 						$hlaska = sprintf($this->design["translate_save_ok"], Lang::view("Lang;30;Jiz existuje."));
 						$_POST["listfil"] = $_POST["new"];
 					break;
+
+					case false:
+						$hlaska = sprintf($this->design["translate_save_ko"], Lang::view("Lang;31;Nejsou prava."));
+					break;
 				}
 			break;
 		}
@@ -173,6 +177,7 @@ class Lang {
 	 *
 	 * vraci
 	 * true: pokud se vse povedlo
+ 	 * false: nejsou prava
 	 * 10: nezadan nazev souboru
 	 * 11: soubor jiz existuje
 	 *
@@ -191,8 +196,10 @@ class Lang {
 		// kontrola zda soubor jiz neexistuje
 		if(!file_exists($path)) {
 			// pokus o vytvoreni
-			fopen($path, "w");
-			return true;
+			if(@fopen($path, "w")) {
+				return true;
+			}
+			return false;
 		} else {
 			return 11;
 		}

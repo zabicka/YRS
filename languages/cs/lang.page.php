@@ -1,5 +1,7 @@
 <?php
 $lang["name"] = "Správa stránek"; 
+$lang["title"] = "Články"; 
+$lang["titlecategory"] = "Kategorie"; 
 $lang[1] = "Upravit"; 
 $lang[2] = "Smazat"; 
 $lang[3] = "Smazat?"; 
@@ -23,7 +25,8 @@ $lang[21] = "Jazyk";
 $lang[22] = "Akce"; 
 $lang[23] = "URL"; 
 $lang[24] = "Kategorie"; 
+$lang[25] = "Existující kategorie"; 
 $lang[26] = "Datum"; 
 $lang[27] = "Dodržujte formát!"; 
-$lang[25] = "Existující kategorie"; 
+$lang[28] = "Pokračovat ve čtení..."; 
 ?>

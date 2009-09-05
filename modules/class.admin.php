@@ -106,8 +106,12 @@ class Admin {
 
 		// presmerovani, u uzivatele se diky tomu projevi zmena
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: ".adresa("admin", $p1, $p2, $p3, $p4));
+		header("Location: ".URL::create($p1, $p2, $p3, $p4));
 		header("Connection: close");
+	}
+
+	public function viewLogout($p1=NULL,$p2=NULL,$p3=NULL,$p4=NULL) {
+		self::logout($p1=NULL,$p2=NULL,$p3=NULL,$p4=NULL);
 	}
 
 	/**
@@ -117,9 +121,9 @@ class Admin {
 		global $db;
 
 		// overeni spravnosti udaju
-		$dotaz = $db->fetch_array("select * from __admin_users where login='".$login."' and password='".$password."'");
+		$dotaz = DB::query("select * from __admin_users where login='".$login."' and password='".$password."'")->fetchSingle();
 		// pokud dotaz nevrati nulovou odpoved
-		if($dotaz!=false) {
+		if($dotaz) {
 			// vytvoreni prihlasovaci session
 			$_SESSION["login"] = $dotaz;
 			// vytvoreni prihlasovaciho cookie a nastaveni limitu doby platnosti
@@ -203,7 +207,7 @@ class Admin {
 		return design(
 			$this->design["loginbox"],
 			array(
-				"url"=>adresa("admin", $p1, $p2, $p3, $p4)
+				"url"=>URL::create("admin", $p1, $p2, $p3, $p4)
 			)
 		);
 	}
@@ -240,6 +244,7 @@ class Admin {
 	public function view($p1=NULL,$p2=NULL,$p3=NULL,$p4=NULL) {
 		// kontrola, zda je uzivatel prihlasen
 		if($_SESSION["login"]=="") {
+			Template::$file = 'login.html';
 			// kontrola zda se uzivatel prihlasuje
 			if($_POST["login"]=="") {
 				// vypsani prihlasovaciho formulare
@@ -250,7 +255,7 @@ class Admin {
 				if($this->access($_POST["login"], yrshash("admin", $_POST["password"]))==true) {
 					// pokud jsou udaje spravne, zobrazi se hlaska o uspechu a probehne presmerovani
 					return $this->design["ok"].
-					"<meta http-equiv='refresh' content='1;url=".adresa("admin", $p1, $p2, $p3, $p4)."'>";
+					"<meta http-equiv='refresh' content='1;url=".URL::create("admin", $p1, $p2, $p3, $p4)."'>";
 				} else {
 					// pokud nejsou udaje spravne, zobrazi se chybova hlaska a prihlasovaci formular
 					return design($this->design["error"], array("loginbox"=>$this->loginform($p1,$p2,$p3,$p4)));
@@ -264,7 +269,10 @@ class Admin {
 			setcookie("login", yrshash("admin", $_SESSION["login"]["login"]), time()+ADMIN_TIMEOUT, "/");
 
 			// zjisteni skutecneho nazvu tridy
-			$p1 = slovnik($p1);
+			$p1 = Dictionary::modul($p1);
+
+			//$out .= $this->main();
+			$out = $this->design['main_header'];
 
 			/** @todo Novy princip - uz ne metody admin*, ale trida (Modul)Admin. */
 			if($p1!='admin' and $p1!=NULL) {
@@ -273,10 +281,15 @@ class Admin {
 					$trida = new $admin_class;
 
 					if(method_exists($trida, $p2)) {
-						return $trida->$p2($p3, $p4);
+						$out .= $trida->$p2($p3, $p4);
 					} else {
-						return $trida->view($p2, $p3, $p4);
+						if(method_exists($trida, 'view')) {
+							$out .= $trida->view($p2, $p3, $p4);
+						} else {
+							$out .= Page::view(PAGE_ERROR403);
+						}
 					}
+					return $out;
 				}
 			}
 
@@ -289,23 +302,25 @@ class Admin {
 				if(method_exists($trida, "admin")) {
 
 					// zavolani metody pro spravu tridy
-					return $trida->admin($p2, $p3, $p4);
+					$out .= $trida->admin($p2, $p3, $p4);
 
 				// pokud metoda pro administraci neexistuje, nacte se hlavni rozbocovac
 				} else {
-					return $this->main();
+					$out .= $this->main();
 				}
 
 			// pokud je volana trida administrace, kontroluje se, zda metoda existuje
 			} else if($p1=="admin" and method_exists($this, $p2)) {
 				// pokud metoda existuje, zavola se
-				return $this->$p2($p3, $p4);
+				$out .= $this->$p2($p3, $p4);
 
 			// pokud trida neexistuje
 			} else {
+				//$out
 				// zobrazi se hlavni rozbocovac
 				return $this->main();
 			}
+			return $out;
 		}
 	}
 
@@ -318,17 +333,17 @@ class Admin {
 
 		// vytvoreni nove polozky
 		if($akce=="save" and $_POST["new_name"]!="") {
-			$db->query("replace __settings values('".$_POST["new_name"]."','".$_POST["new_value"]."')");
+			DB::query("replace __settings values('".$_POST["new_name"]."','".$_POST["new_value"]."')");
 		}
 
 
 		// nacteni vsech nastaveni z databaze
-		$nacti = $db->query("select * from __settings");
+		$nacti = DB::query("select * from __settings");
 
 		// promenna pro HTML vystup
 		$out = "";
 
-		while($row = $db->fetch_array($nacti)) {
+		foreach($nacti->getIterator() as $row) {
 			// jmeno nastaveni
 			$name = strtolower("set_".$row["name"]);
 			// hodnota nastaveni
@@ -410,11 +425,11 @@ class Admin {
 			$hash = $url;
 
 			// nacteni vsech opravneni z DB
-			$query = $db->query("select * from __admin_access where hash='".$hash."'");
+			$query = DB::query("select * from __admin_access where hash=%s", $hash);
 
 			// kontrola, zda existuje alespon jedno pravidlo
 			$epravidlo = false;
-			while($access = $db->fetch_array($query)) {
+			foreach($query->getIterator() as $access) {
 				// kontrola, zda je uzivatel vlastnikem objektu
 				if($access["owner"]==$id and ereg($typ, $access["ao"]))
 					return true;
@@ -771,7 +786,7 @@ class Admin {
 		$ret = array();
 
 		foreach($keys as $key) {
-			list($value) = $db->fetch_array("select hodnota from __admin_users_info where user='".$id."' and klic='".$key."'");
+			$value = DB::query("select hodnota from __admin_users_info where user=%i and klic=%s", $id, $key)->fetchSingle();
 			$ret[] = ($value!="") ? $value : NULL;
 		}
 

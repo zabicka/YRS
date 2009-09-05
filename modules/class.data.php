@@ -45,8 +45,9 @@ class Data {
 	/**
 	 * Ziskani cesty
 	 */
-	protected function getPath($absolute=false) {
-		return ($absolute==true) ? CESTA_ABSOLUTNI.$this->path : $this->path;
+	protected function getPath($absolute=false, $without_default=false) {
+		$path = ($absolute==true) ? CESTA_ABSOLUTNI.$this->path : $this->path;
+		return ($without_default==true) ? str_replace(self::DEFAULT_PATH, '', $path) : $path;
 	}
 
 	/**
@@ -87,7 +88,34 @@ class Data {
 			}
 		}
 
+		sort($ret);
+
 		return $ret;
+	}
+
+	protected function removeFile($file) {
+		return @unlink($this->path.$file);
+	}
+
+	protected function renameFile($old, $new) {
+		if(!file_exists($this->path.$new)) {
+			return @rename($this->path.$old, $this->path.$new);
+		}
+
+		return false;
+	}
+
+	protected function getType($file) {
+		$ex = explode('.', $file);
+		return $ex[count($ex)-1];
+	}
+
+	protected function saveFile($tmp, $name) {
+		if(copy($tmp, $this->path.$name)) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
