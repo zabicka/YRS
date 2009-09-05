@@ -1,5 +1,5 @@
 <?php
-define('DB', 'MySQL'); # MySQL
+define('DB', 'mysql');
 define('DB_SERVER', 'localhost'); # server - default localhost
 define('DB_USER', ''); # login to db
 define('DB_PASSWORD', ''); # password to db

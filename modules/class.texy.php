@@ -66,6 +66,7 @@ require_once dirname(__FILE__) . '/texy/modules/TexyTableModule.php';
 require_once dirname(__FILE__) . '/texy/modules/TexyTypographyModule.php';
 require_once dirname(__FILE__) . '/texy/modules/TexyHtmlOutputModule.php';
 require_once dirname(__FILE__) . '/texy/modules/TexyLyricsModule.php';
+require_once dirname(__FILE__) . '/texy/modules/TexyCenzureModule.php';
 
 
 
@@ -478,6 +479,7 @@ class Texy extends TexyObject
 	 */
 	public function process($text, $singleLine = FALSE)
 	{
+
 		if ($this->processing) {
 			throw new InvalidStateException('Processing is in progress yet.');
 		}

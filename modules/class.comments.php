@@ -78,7 +78,7 @@ class Comments {
 	 */
 	static $bygroups = array('' =>'');
 
-	function __construct() {
+	public function __construct() {
 		global $vzhled;
 
 		if($vzhled!="") {
@@ -103,6 +103,8 @@ class Comments {
 		$texy->allowed['html/tag'] = false;
 		$texy->allowed['script'] = false;
 
+		$text = TexyCenzureModule::render($text);
+
 		return $texy->process($text);
 	}
 
@@ -115,7 +117,7 @@ class Comments {
 	 *
 	 * @return boolean
 	 */
-	private function checkMail($mail) {
+	protected function checkMail($mail) {
 		// 1 - kontrola pouze podle syntaxe
 		if(self::MAIL_LEVEL==1 and (check_email($mail)==false)) {
 			return false;
@@ -156,12 +158,9 @@ class Comments {
 	 * 6 - prazdny text
 	 *
 	 */
-	private function addComment($user, $subject, $text, $group,$parent=0) {
+	protected function addComment($user, $subject, $text, $group,$parent=0) {
 		// prevod ip na cislo
 		$ip = ip2long(getIP());
-
-		// odstraneni html a prevedeni diky Texy!
-		$text = self::textToTexy($text);
 
 		// zkraceni titulku
 		$subject = substr(htmlspecialchars($subject), 0, self::SUBJECT_MAX_LENGHT);
@@ -267,6 +266,58 @@ class Comments {
 	}
 }
 
+
+
+class CommentsAdmin extends Comments {
+
+	public function getall() {
+		$ret = array();
+		$comments = DB::query('select * from __comments_list order by date')->fetchAll();
+
+		foreach($comments as $comment) {
+			$ret[$comment->id_group][] = $comment;
+		}
+
+		return $ret;
+	}
+
+	public function htmlGroup($name, $data) {
+		$out= '';
+		foreach($data as $comment) {
+			$comment['ip'] = long2ip($comment['ip']);
+			$comment['reply'] = ($comment['parent']==0) ? '' : 'YES';
+
+			$out .= design(parent::$design['admin_comment'], $comment);
+		}
+
+		return design(parent::$design['admin_group'], array('name'=>$name, 'comments'=>$out));
+	}
+
+	public function delete($id) {
+		DB::query('delete from __comments_list where ID=%i', $id);
+		DB::query('delete from __comments_list where parent=%i', $id);
+
+		return self::view();
+	}
+
+	public function view() {
+		$out = '';
+		$groups = '';
+
+		foreach(self::getall() as $name=>$group) {
+			$groups .= design(parent::$design['admin_list_group'], array('name'=>$name));
+			$out .= self::htmlGroup($name, $group);
+		}
+
+		$groups = design(parent::$design['admin_list_groups'], array('groups'=>$groups));
+
+		return design(parent::$design['admin'], array('comments'=>$out, 'groups'=>$groups));
+	}
+}
+
+
+
+
 class CommentsView extends Comments {
 	/**
 	 * ziskava seznam komentaru pro danou skupinu. Vraci strukturu s podkomentari
@@ -328,6 +379,7 @@ class CommentsView extends Comments {
 
 		// prochazeni ziskanymi polozkami
 		foreach($list->getIterator() as $c) {
+			$c['text'] = self::textToTexy($c['text']);
 			if(self::ALWAYS_UPDATE_USERS==true and $c['id_user']!=0) {
 
 				list($fname, $lname, $c['mail'], $c['web'], $c['signature']) = Admin::getUserInfo(

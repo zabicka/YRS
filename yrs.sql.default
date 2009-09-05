@@ -4,7 +4,7 @@ Source Host: 127.0.0.1
 Source Database: yrs
 Target Host: 127.0.0.1
 Target Database: yrs
-Date: 21.8.2009 15:55:34
+Date: 5.9.2009 21:47:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -55,19 +55,7 @@ CREATE TABLE `yrs_admin_users_info` (
   `klic` varchar(128) collate utf8_czech_ci default NULL,
   `hodnota` varchar(255) collate utf8_czech_ci default NULL,
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
-
--- ----------------------------
--- Table structure for yrs_comments_groups
--- ----------------------------
-DROP TABLE IF EXISTS `yrs_comments_groups`;
-CREATE TABLE `yrs_comments_groups` (
-  `ID` varchar(255) collate utf8_czech_ci NOT NULL,
-  `url` varchar(255) collate utf8_czech_ci default NULL,
-  `name` varchar(255) collate utf8_czech_ci default NULL,
-  `description` tinytext collate utf8_czech_ci,
-  PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_comments_list
@@ -86,7 +74,7 @@ CREATE TABLE `yrs_comments_list` (
   `date` datetime default NULL,
   `parent` int(11) default NULL,
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_dictionary
@@ -94,12 +82,12 @@ CREATE TABLE `yrs_comments_list` (
 DROP TABLE IF EXISTS `yrs_dictionary`;
 CREATE TABLE `yrs_dictionary` (
   `ID` int(11) NOT NULL auto_increment,
-  `co` varchar(128) collate utf8_czech_ci NOT NULL,
-  `cim` varchar(128) collate utf8_czech_ci NOT NULL,
+  `translation` varchar(128) collate utf8_czech_ci NOT NULL,
+  `modul` varchar(128) collate utf8_czech_ci NOT NULL,
   `class` varchar(128) collate utf8_czech_ci NOT NULL,
-  `jazyk` varchar(2) collate utf8_czech_ci NOT NULL,
+  `lang` varchar(2) collate utf8_czech_ci NOT NULL,
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_menu_menus
@@ -110,18 +98,18 @@ CREATE TABLE `yrs_menu_menus` (
   `menu` int(11) NOT NULL,
   `lang` varchar(2) collate utf8_czech_ci NOT NULL,
   `name` varchar(255) collate utf8_czech_ci NOT NULL,
-  `url` varchar(255) collate utf8_czech_ci NOT NULL,
-  `class` varchar(128) collate utf8_czech_ci NOT NULL,
-  `akce` varchar(128) collate utf8_czech_ci NOT NULL,
-  `parametr1` varchar(128) collate utf8_czech_ci NOT NULL,
-  `parametr2` varchar(128) collate utf8_czech_ci NOT NULL,
-  `parametr3` varchar(128) collate utf8_czech_ci NOT NULL,
-  `parametr4` varchar(128) collate utf8_czech_ci NOT NULL,
-  `parametr5` varchar(128) collate utf8_czech_ci NOT NULL,
-  `change_lang` varchar(2) collate utf8_czech_ci NOT NULL,
+  `url` varchar(255) collate utf8_czech_ci default NULL,
+  `class` varchar(128) collate utf8_czech_ci default NULL,
+  `akce` varchar(128) collate utf8_czech_ci default NULL,
+  `parametr1` varchar(128) collate utf8_czech_ci default NULL,
+  `parametr2` varchar(128) collate utf8_czech_ci default NULL,
+  `parametr3` varchar(128) collate utf8_czech_ci default NULL,
+  `parametr4` varchar(128) collate utf8_czech_ci default NULL,
+  `parametr5` varchar(128) collate utf8_czech_ci default NULL,
+  `change_lang` varchar(2) collate utf8_czech_ci default NULL,
   `weight` int(11) NOT NULL,
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=70 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_page_pages
@@ -140,7 +128,7 @@ CREATE TABLE `yrs_page_pages` (
   FULLTEXT KEY `name` (`name`),
   FULLTEXT KEY `description` (`description`),
   FULLTEXT KEY `content` (`content`)
-) ENGINE=MyISAM AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=70 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_settings
@@ -208,6 +196,14 @@ CREATE TABLE `yrs_shop_products` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
+-- Table structure for yrs_texy_badwords
+-- ----------------------------
+DROP TABLE IF EXISTS `yrs_texy_badwords`;
+CREATE TABLE `yrs_texy_badwords` (
+  `word` varchar(120) collate utf8_czech_ci default NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+
+-- ----------------------------
 -- Table structure for yrs_tmp_access
 -- ----------------------------
 DROP TABLE IF EXISTS `yrs_tmp_access`;
@@ -217,7 +213,7 @@ CREATE TABLE `yrs_tmp_access` (
   `second` int(11) default NULL COMMENT 'in seconds',
   `type` char(64) collate utf8_czech_ci default 'db',
   PRIMARY KEY  (`ID`,`url`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
 -- Table structure for yrs_tmp_content
@@ -232,36 +228,26 @@ CREATE TABLE `yrs_tmp_content` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 -- ----------------------------
--- View structure for yrs_dictionary_revers
--- ----------------------------
-DROP VIEW IF EXISTS `yrs_dictionary_revers`;
-CREATE ALGORITHM=UNDEFINED DEFINER=``@`%` SQL SECURITY DEFINER VIEW `yrs_dictionary_revers` AS select `yrs_dictionary`.`ID` AS `ID`,`yrs_dictionary`.`co` AS `co`,`yrs_dictionary`.`cim` AS `cim`,`yrs_dictionary`.`class` AS `class`,`yrs_dictionary`.`jazyk` AS `jazyk` from `yrs_dictionary` where (`yrs_dictionary`.`class` <> _utf8'');
-
--- ----------------------------
 -- Records
 -- ----------------------------
 INSERT INTO `yrs_admin_groups` VALUES ('1', 'root');
 INSERT INTO `yrs_admin_users` VALUES ('1', 'root', 'GENERATE YOUR PASSWORD', '1');
-INSERT INTO `yrs_dictionary` VALUES ('1', 'article', 'page', '', 'en');
+INSERT INTO `yrs_dictionary` VALUES ('1', 'fotogaleri', 'gallery', '', 'cs');
 INSERT INTO `yrs_dictionary` VALUES ('2', 'clanek', 'page', '', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('3', 'page', 'page', '', 'fr');
-INSERT INTO `yrs_dictionary` VALUES ('4', 'administrace', 'admin', '', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('6', 'article', 'page', '', 'en');
-INSERT INTO `yrs_dictionary` VALUES ('37', 'clanky', 'page', 'admin', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('8', 'page', 'page', '', 'fr');
-INSERT INTO `yrs_dictionary` VALUES ('9', 'article', 'page', '', 'en');
-INSERT INTO `yrs_dictionary` VALUES ('11', 'page', 'page', '', 'fr');
-INSERT INTO `yrs_dictionary` VALUES ('12', 'article', 'page', '', 'en');
-INSERT INTO `yrs_dictionary` VALUES ('36', 'preklady', 'lang', 'admin', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('14', 'page', 'page', '', 'fr');
-INSERT INTO `yrs_dictionary` VALUES ('30', 'load', 'view', 'import', '');
-INSERT INTO `yrs_dictionary` VALUES ('31', 'vyhledavani', 'search', '', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('32', 'slovnik', 'dictionary', 'admin', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('38', 'stranka', 'page', '', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('42', 'fotogalerie', 'gallery', '', 'cs');
-INSERT INTO `yrs_dictionary` VALUES ('43', 'vzkazy', 'comments', '', 'cs');
-INSERT INTO `yrs_settings` VALUES ('NAME', '');
-INSERT INTO `yrs_settings` VALUES ('KEY', '');
+INSERT INTO `yrs_dictionary` VALUES ('3', 'administrace', 'admin', '', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('4', 'slovnik', 'dictionary', '', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('5', 'kategorie', 'categories', '', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('6', 'vzkazy', 'comments', '', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('7', 'komentare', 'comments', '', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('8', 'pridat-foto', 'addphoto', 'gallery', 'cs');
+INSERT INTO `yrs_dictionary` VALUES ('9', 'odhlaseni', 'logout', 'admin', 'cs');
+INSERT INTO `yrs_menu_menus` VALUES ('1', '1', 'cs', 'Uvod', null, 'page', 'index', null, null, null, null, null, 'cs', '100');
+INSERT INTO `yrs_menu_menus` VALUES ('2', '1', 'cs', 'Administrace', null, 'admin', null, null, null, null, null, null, 'cs', '100');
+INSERT INTO `yrs_page_pages` VALUES ('1', 'Vitejte', 'index', 'cs', 'System YRS byl uspesne nainstalovan.', 'Pro upravy systemu se prihlaste do {URL:admin}:administrace', NOW(), 'Info');
+INSERT INTO `yrs_page_pages` VALUES ('2', 'Stránka nenalezena', 'error404', 'cs', '', 'Omlouváme se, ale stránka nebyla nalezena.', NOW(), 'Info');
+INSERT INTO `yrs_page_pages` VALUES ('3', 'Přístup odepřen', 'error403', 'cs', '', 'Nemáte povolení pro prohlížení této stránky.', NOW(), 'Info');
+INSERT INTO `yrs_settings` VALUES ('NAME', 'YRS');
+INSERT INTO `yrs_settings` VALUES ('KEY', MD5(NOW()));
 INSERT INTO `yrs_settings` VALUES ('ACTION_INDEX', '/page/');
 INSERT INTO `yrs_settings` VALUES ('ACTION_ERROR404', '/page/error404/');
 INSERT INTO `yrs_settings` VALUES ('ACTION_DEFAULT', 'view');
@@ -272,7 +258,7 @@ INSERT INTO `yrs_settings` VALUES ('PRINT_ERRORS', '4');
 INSERT INTO `yrs_settings` VALUES ('DEFAULT_LANG', 'cs');
 INSERT INTO `yrs_settings` VALUES ('CESTA_NULL', '.');
 INSERT INTO `yrs_settings` VALUES ('GENERAL_TEMPLATE', 'default');
-INSERT INTO `yrs_settings` VALUES ('ADMIN_TIMEOUT', '600');
+INSERT INTO `yrs_settings` VALUES ('ADMIN_TIMEOUT', '6000');
 INSERT INTO `yrs_settings` VALUES ('ACTION_ERROR403', '/page/error403/');
-INSERT INTO `yrs_settings` VALUES ('MOTTO', '');
+INSERT INTO `yrs_settings` VALUES ('MOTTO', 'website!');
 INSERT INTO `yrs_settings` VALUES ('COMMENTS_COLORS', '0,0;1,1');

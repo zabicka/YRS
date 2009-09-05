@@ -50,3 +50,11 @@ CHANGES (CZ)
 4. Cacheovani je v soucasnem stavu nepouzitelne, vypnuti, potreba doladit:
 	a.) Administraci
 	b.) Cacheovani nadpisu, meta apod.
+
+   Vypnute bylo v tride Init, ze zacatku funkce run():
+
+		$this->showtmp = false;
+		$this->savetmp = false;
+
+5. Novy modul pro Texy!, ktery bude cenzurovat vsechny vystupy - podle seznamu nevhodnych slov bude
+	vypipavat, defacto vyhvezdickovavat.
