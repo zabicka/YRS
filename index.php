@@ -212,32 +212,6 @@ DB::connect(array(
     'charset'  => DB_KODOVANI,
 ));
 
-/*$typ = DB;
-
-if($typ=='DB') {
-	// spusteni instalace
-	header("Location: install/install.php");
-	header("Connection: close");
-	exit;
-}*/
-
-/**
- * Vytvoreni objektu pro spolupraci s databazi.
- *
- * @name $db
- * @global object $GLOBALS["db"]
- */
-/*
-$GLOBALS["db"] = new $typ;
-if(method_exists($db, "connect")) {
-	if($db->connect(, , , , )==false) {
-	//	instalace();
-
-		Chyby(1, "Nepodarilo se pripojit k DB. Typ databaze: ".$typ, "/index.php", 0);
-		exit;
-	}
-}*/
-
 
 # Nacteni nastaveni
 if($settings = DB::query("select * from __settings where name!=%s", "index.php")) {
@@ -257,6 +231,7 @@ jazyky();
 /**
  * Objekt pro zobrazeni. Do neho se ukladaji jednotlive bloky, ktere se maji zaobrazit a pak se
  * vykresluji.
+ * @todo Neslo by predelat na statickou tridu?
  *
  * @name $vzhled
  * @global object $GLOBALS["vzhled"]
